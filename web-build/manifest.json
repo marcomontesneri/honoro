@@ -2,8 +2,8 @@
   "background_color": "#ffffff",
   "display": "standalone",
   "lang": "en",
-  "name": "expo-test-project",
-  "short_name": "expo-test-project",
+  "name": "Honoro",
+  "short_name": "Honoro",
   "start_url": "/?utm_source=web_app_manifest",
   "orientation": "portrait"
 }
