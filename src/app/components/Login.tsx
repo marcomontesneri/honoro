@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Button, StyleSheet, Text, TouchableOpacity, View, Alert } from "react-native";
 import {
   requestTxSig,
   waitForSignedTxs,

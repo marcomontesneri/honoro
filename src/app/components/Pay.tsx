@@ -7,6 +7,7 @@ import {
   Text,
   TextInput,
   View,
+  Alert,
 } from "react-native";
 
 import { any } from "prop-types";
@@ -18,14 +19,14 @@ import {
   waitForAccountAuth,
   FeeCurrency,
   // Ensure that we are importing the functions from dappkit/lib/web
-} from '@celo/dappkit/lib/web'
+} from "@celo/dappkit/lib/web";
 
 import { newKitFromWeb3 } from "@celo/contractkit";
-import Web3 from 'web3';
+import Web3 from "web3";
 
 // set up ContractKit, using forno as a provider
 // testnet
-export const web3 = new Web3('https://alfajores-forno.celo-testnet.org');
+export const web3 = new Web3("https://alfajores-forno.celo-testnet.org");
 // mainnet -- comment out the above, uncomment below for mainnet
 // export const web3 = new Web3('https://forno.celo.org');
 
@@ -47,7 +48,7 @@ export default class Pay extends React.Component<any, any> {
     amount: "",
     reference: "",
     company: any,
-    address:"0x3Ca7CdcFB98b066D6e8fEbe45a95C2FE911Bf138"
+    address: "0x3Ca7CdcFB98b066D6e8fEbe45a95C2FE911Bf138",
   };
   static company = [
     { value: 12, label: "Agua CDMX" },
@@ -87,19 +88,20 @@ export default class Pay extends React.Component<any, any> {
       }),
     });
   }
-  transfer = async (amount:string, reference:any) => {
+  transfer = async (amount: string, reference: any) => {
     if (this.state.address) {
-      console.log("Entering transfer")
-      const requestId = 'transfer';
-      const dappName = 'Hello Celo';
+      console.log("Entering transfer");
+      const requestId = "transfer";
+      const dappName = "Hello Celo";
 
       // Replace with your own account address and desired value in WEI to transfer
       const transferToAccount = this.state.address;
-      const transferValue = String(this.state.company);
+      const transferValue = String(this.state.amount);
 
       // Create a transaction object using ContractKit
       const stableToken = await kit.contracts.getStableToken();
-      const txObject = stableToken.transfer(transferToAccount, transferValue).txo;
+      const txObject = stableToken.transfer(transferToAccount, transferValue)
+        .txo;
 
       // Send a request to the Celo wallet to send an update transaction to the HelloWorld contract
       requestTxSig(
@@ -109,24 +111,28 @@ export default class Pay extends React.Component<any, any> {
           {
             // @ts-ignore
             tx: txObject,
-            from: this.state.address!,
+            from: this.state.address,
             to: stableToken.address,
-            feeCurrency: FeeCurrency.cUSD
-          }
+            feeCurrency: FeeCurrency.cUSD,
+          },
         ],
         { requestId, dappName, callback: window.location.href }
-      )
+      );
 
       // Get the response from the Celo wallet
       // Wait for signed transaction object and handle possible timeout
       let rawTx;
       try {
-        const dappkitResponse = await waitForSignedTxs(requestId)
-        rawTx = dappkitResponse.rawTxs[0]
+        const dappkitResponse = await waitForSignedTxs(requestId);
+        rawTx = dappkitResponse.rawTxs[0];
       } catch (error) {
-        console.log(error)
-        this.setState({status: "transaction signing timed out, try again."})
-        return
+        console.log(error);
+        Alert.alert("Error", error, [
+          { text: "OK", onPress: () => console.log("OK Pressed") },
+        ]);
+
+        this.setState({ status: "transaction signing timed out, try again." });
+        return;
       }
 
       // Wait for transaction result and check for success
@@ -135,17 +141,24 @@ export default class Pay extends React.Component<any, any> {
       const receipt = await tx.waitReceipt();
 
       if (receipt.status) {
+        Alert.alert("Success", 'Transaction completed', [
+          { text: "OK", onPress: () => console.log("OK Pressed") },
+        ]);
         status = "transfer succeeded with receipt: " + receipt.transactionHash;
       } else {
-        console.log(JSON.stringify(receipt))
-        status = "failed to send transaction"
+        Alert.alert("Error", JSON.stringify(receipt), [
+          { text: "OK", onPress: () => console.log("OK Pressed") },
+        ]);
+
+        console.log(JSON.stringify(receipt));
+        status = "failed to send transaction";
       }
-      this.setState({status: status})
+      this.setState({ status: status });
     }
+  };
+  gotToLogin() {
+    Actions.pop();
   }
-gotToLogin(){
-  Actions.pop() 
-}
   render() {
     // const [selectedValue, setSelectedValue] = useState("java");
     return (
@@ -189,14 +202,19 @@ gotToLogin(){
 
           <TouchableOpacity
             style={styles.submitButton}
-            onPress={() => this.transfer(this.state.reference, this.state.amount)}
+            onPress={() =>
+              this.transfer(this.state.reference, this.state.amount)
+            }
           >
             <Text style={styles.submitButtonText}> Transfer </Text>
           </TouchableOpacity>
           <View style={styles.back}>
-          <TouchableOpacity onPress={this.gotToLogin}>
-          <Text onPress={() => this.props.history.push("/login")}> Back </Text>
-          </TouchableOpacity>
+            <TouchableOpacity onPress={this.gotToLogin}>
+              <Text onPress={() => this.props.history.push("/login")}>
+                {" "}
+                Back{" "}
+              </Text>
+            </TouchableOpacity>
           </View>
         </Card>
       </View>
@@ -232,8 +250,8 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     color: "white",
-    fontSize:18,
-    fontWeight:"500"
+    fontSize: 18,
+    fontWeight: "500",
   },
   label: {
     textAlign: "left",
@@ -252,7 +270,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
   },
-  back:{
-    alignItems: 'flex-end',
-  }
+  back: {
+    alignItems: "flex-end",
+  },
 });
