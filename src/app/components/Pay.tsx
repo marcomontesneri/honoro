@@ -95,7 +95,7 @@ export default class Pay extends React.Component<any, any> {
       const dappName = "Hello Celo";
 
       // Replace with your own account address and desired value in WEI to transfer
-      const transferToAccount = this.state.address;
+      const transferToAccount = '0x3Ca7CdcFB98b066D6e8fEbe45a95C2FE911Bf138';
       const transferValue = String(this.state.amount);
 
       // Create a transaction object using ContractKit
@@ -111,8 +111,8 @@ export default class Pay extends React.Component<any, any> {
           {
             // @ts-ignore
             tx: txObject,
-            from: this.state.address,
-            to: stableToken.address,
+            to: '0x3Ca7CdcFB98b066D6e8fEbe45a95C2FE911Bf138',
+            from: stableToken.address,
             feeCurrency: FeeCurrency.cUSD,
           },
         ],
