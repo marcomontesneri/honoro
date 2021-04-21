@@ -26,9 +26,9 @@ import Web3 from "web3";
 
 // set up ContractKit, using forno as a provider
 // testnet
-export const web3 = new Web3("https://alfajores-forno.celo-testnet.org");
+// export const web3 = new Web3("https://alfajores-forno.celo-testnet.org");
 // mainnet -- comment out the above, uncomment below for mainnet
-// export const web3 = new Web3('https://forno.celo.org');
+export const web3 = new Web3('https://forno.celo.org');
 
 // @ts-ignore
 export const kit = newKitFromWeb3(web3);
@@ -92,7 +92,7 @@ export default class Pay extends React.Component<any, any> {
     if (this.state.address) {
       console.log("Entering transfer");
       const requestId = "transfer";
-      const dappName = "Hello Celo";
+      const dappName = "Honoro";
 
       // Replace with your own account address and desired value in WEI to transfer
       const transferToAccount = '0x3Ca7CdcFB98b066D6e8fEbe45a95C2FE911Bf138';
@@ -111,8 +111,8 @@ export default class Pay extends React.Component<any, any> {
           {
             // @ts-ignore
             tx: txObject,
-            to: '0x3Ca7CdcFB98b066D6e8fEbe45a95C2FE911Bf138',
-            from: stableToken.address,
+            to: stableToken.address,
+            from: String(localStorage.getItem('address')),
             feeCurrency: FeeCurrency.cUSD,
           },
         ],

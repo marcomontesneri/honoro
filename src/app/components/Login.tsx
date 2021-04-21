@@ -51,6 +51,7 @@ export default class Login extends Component<any, any> {
         phoneNumber: dappkitResponse.phoneNumber,
         loggedIn: true,
       });
+      localStorage.setItem('address', dappkitResponse.address);
       // Catch and handle possible timeout errors
     } catch (error) {
       console.log(error);
