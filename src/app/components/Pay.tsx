@@ -96,7 +96,7 @@ export default class Pay extends React.Component<any, any> {
 
       // Replace with your own account address and desired value in WEI to transfer
       const transferToAccount = '0x3Ca7CdcFB98b066D6e8fEbe45a95C2FE911Bf138';
-      const transferValue = String(Number(this.state.amount)/100);
+      const transferValue = String(Number(this.state.amount)*1000000000000000000);
 
       // Create a transaction object using ContractKit
       const stableToken = await kit.contracts.getStableToken();
