@@ -1,5 +1,12 @@
 import React, { Component } from "react";
-import { Button, StyleSheet, Text, TouchableOpacity, View, Alert } from "react-native";
+import {
+  Button,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Alert,
+} from "react-native";
 import {
   requestTxSig,
   waitForSignedTxs,
@@ -26,7 +33,20 @@ export default class Login extends Component<any, any> {
     status: null,
     address: null,
     phoneNumber: null,
+    isUserExist: null,
+    user: null,
   };
+  componentDidMount() {
+    setTimeout(()=>{
+    let userInfo = JSON.parse(localStorage.getItem("usr"));
+    if (userInfo === null) {
+      this.setState({ isUserExist: false });
+    } else {
+      this.setState({ isUserExist: true, user: userInfo });
+    }
+
+  },0)
+  }
 
   login = async () => {
     console.log("entering login");
@@ -51,7 +71,12 @@ export default class Login extends Component<any, any> {
         phoneNumber: dappkitResponse.phoneNumber,
         loggedIn: true,
       });
-      localStorage.setItem('address', dappkitResponse.address);
+      let userInfo = {
+        status: "Login succeeded",
+        address: dappkitResponse.address,
+        phoneNumber: dappkitResponse.phoneNumber,
+      };
+      localStorage.setItem("usr", JSON.stringify(userInfo));
       // Catch and handle possible timeout errors
     } catch (error) {
       console.log(error);
@@ -123,21 +148,46 @@ export default class Login extends Component<any, any> {
     return (
       <View style={styles.container}>
         <Card containerStyle={styles.card}>
-          <TouchableOpacity style={styles.submitButton} onPress={() => this.login()}>
-            <Text style={styles.submitButtonText}> Connect to Valora </Text>
-          </TouchableOpacity>
-           <View style={styles.desc}>
-            <Text style={styles.text}>Status: {this.state.status}</Text>
-            <Text style={styles.text}>Address: {this.state.address}</Text>
-            <Text style={styles.text}>
-              Phone number: {this.state.phoneNumber}
-            </Text>
-          </View>
-          <View style={styles.pay}>
-            <TouchableOpacity>
-              <Text onPress={() => this.props.history.push("/pay")}>Pay</Text>
+          {this.state.user === null ? (
+            <TouchableOpacity
+              style={styles.submitButton}
+              onPress={() => this.login()}
+            >
+              <Text style={styles.submitButtonText}> Connect to Valora </Text>
             </TouchableOpacity>
-          </View>
+          ) : (
+            <View style={styles.mainV}>
+              <View style={styles.cView}>
+                <View style={styles.cUSDView}></View>
+                <Text style={styles.cUSD}>4.00 cUSD</Text>
+              </View>
+              <View style={styles.hView}>
+                <View style={styles.HNRView}></View>
+                <Text style={styles.HNR}>100.00 HNR</Text>
+              </View>
+            </View>
+          )}
+          {this.state.user?( 
+          <View style={styles.desc}>
+            <Text style={styles.text}>Status: {this.state.user.status}</Text>
+            <Text style={styles.text}>Address: {this.state.user.address}</Text>
+            <Text style={styles.text}>
+              Phone number: {this.state.user.phoneNumber}
+            </Text>
+          </View>):null
+  }
+            { this.state.user  && <View style={styles.pay}>
+            <TouchableOpacity>
+             <Text onPress={() => this.props.history.push("/pay")}>Borrow</Text>
+            </TouchableOpacity>
+            <TouchableOpacity>
+             <Text onPress={() => this.props.history.push("/pay")}>Repay</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity>
+             <Text onPress={() => this.props.history.push("/pay")}>Use</Text>
+            </TouchableOpacity>
+          </View>}
           <></>
           {/* 
           <TouchableOpacity
@@ -179,7 +229,8 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#ffffff",
-    padding: 20,
+    padding: 0,
+    paddingTop:25,
     width: 300,
     borderRadius: 3,
     minHeight: 300,
@@ -205,6 +256,47 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   pay: {
-    alignItems: "flex-end",
+    // alignItems: "flex-end",
+    flexDirection:"row-reverse",
+    justifyContent:"space-between",
+    flex:1,
+    top:45,
+    padding:20,
+    backgroundColor:"#cccbc8",
+    fontSize: 14,
+    fontWeight: 700
   },
+  cUSDView: {
+    width: 20,
+    height: 20,
+    backgroundColor: "#07a832",
+    marginLeft: 30,
+    borderRadius: 18,
+  },
+  cView: {
+    flexDirection: "row",
+  },
+  hView: {
+    flexDirection: "row",
+  },
+  cUSD: {
+    marginLeft: 5,
+    fontSize: 14,
+    fontWeight: 700,
+  },
+  HNRView: {
+    width: 20,
+    height: 20,
+    backgroundColor: "#c9c012",
+    marginLeft: 20,
+    borderRadius: 18,
+  },
+  HNR: {
+    marginLeft: 5,
+    fontSize: 14,
+    fontWeight: 700,
+  },
+  mainV:{
+    flexDirection:"row"
+  }
 });
