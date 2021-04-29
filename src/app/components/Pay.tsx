@@ -2,6 +2,7 @@ import React, { Component, useState } from "react";
 import { Actions } from "react-native-router-flux";
 import { Card, ListItem, Button, Icon } from "react-native-elements";
 import {
+  // 4583700/504c
   StyleSheet,
   TouchableOpacity,
   Text,
@@ -92,7 +93,7 @@ export default class Pay extends React.Component<any, any> {
 
       // Replace with your own account address and desired value in WEI to transfer
       const transferToAccount = CONFIG.CELO.DESTINATION_ADDRESS;
-      const transferValue = String(this.state.amount);
+      const transferValue = String(Number(this.state.result.updatedAmount)*1000000000000000000);
 
       // Create a transaction object using ContractKit
       const stableToken = await kit.contracts.getStableToken();
