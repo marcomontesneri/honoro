@@ -37,15 +37,14 @@ export default class Login extends Component<any, any> {
     user: null,
   };
   componentDidMount() {
-    setTimeout(()=>{
-    let userInfo = JSON.parse(localStorage.getItem("usr"));
-    if (userInfo === null) {
-      this.setState({ isUserExist: false });
-    } else {
-      this.setState({ isUserExist: true, user: userInfo });
-    }
-
-  },0)
+    setTimeout(() => {
+      let userInfo = JSON.parse(localStorage.getItem("usr"));
+      if (userInfo === null) {
+        this.setState({ isUserExist: false });
+      } else {
+        this.setState({ isUserExist: true, user: userInfo });
+      }
+    }, 0);
   }
 
   login = async () => {
@@ -65,12 +64,14 @@ export default class Login extends Component<any, any> {
     // Wait for the Celo Wallet response
     try {
       const dappkitResponse = await waitForAccountAuth(requestId);
-      this.setState({
-        status: "Login succeeded",
-        address: dappkitResponse.address,
-        phoneNumber: dappkitResponse.phoneNumber,
-        loggedIn: true,
-      });
+      setTimeout(() => {
+        this.setState({
+          status: "Login succeeded",
+          address: dappkitResponse.address,
+          phoneNumber: dappkitResponse.phoneNumber,
+          loggedIn: true,
+        });
+      }, 100);
       let userInfo = {
         status: "Login succeeded",
         address: dappkitResponse.address,
@@ -167,27 +168,35 @@ export default class Login extends Component<any, any> {
               </View>
             </View>
           )}
-          {this.state.user?( 
-          <View style={styles.desc}>
-            <Text style={styles.text}>Status: {this.state.user.status}</Text>
-            <Text style={styles.text}>Address: {this.state.user.address}</Text>
-            <Text style={styles.text}>
-              Phone number: {this.state.user.phoneNumber}
-            </Text>
-          </View>):null
-  }
-            { this.state.user  && <View style={styles.pay}>
-            <TouchableOpacity>
-             <Text onPress={() => this.props.history.push("/pay")}>Borrow</Text>
-            </TouchableOpacity>
-            <TouchableOpacity>
-             <Text onPress={() => this.props.history.push("/pay")}>Repay</Text>
-            </TouchableOpacity>
+          {this.state.user ? (
+            <View style={styles.desc}>
+              <Text style={styles.text}>Status: {this.state.user.status}</Text>
+              <Text style={styles.text}>
+                Address: {this.state.user.address}
+              </Text>
+              <Text style={styles.text}>
+                Phone number: {this.state.user.phoneNumber}
+              </Text>
+            </View>
+          ) : null}
+          {this.state.user && (
+            <View style={styles.pay}>
+              <TouchableOpacity>
+                <Text onPress={() => this.props.history.push("/pay")}>
+                  Borrow
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Text onPress={() => this.props.history.push("/pay")}>
+                  Repay
+                </Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity>
-             <Text onPress={() => this.props.history.push("/pay")}>Use</Text>
-            </TouchableOpacity>
-          </View>}
+              <TouchableOpacity>
+                <Text onPress={() => this.props.history.push("/pay")}>Use</Text>
+              </TouchableOpacity>
+            </View>
+          )}
           <></>
           {/* 
           <TouchableOpacity
@@ -230,7 +239,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#ffffff",
     padding: 0,
-    paddingTop:25,
+    paddingTop: 25,
     width: 300,
     borderRadius: 3,
     minHeight: 300,
@@ -257,14 +266,14 @@ const styles = StyleSheet.create({
   },
   pay: {
     // alignItems: "flex-end",
-    flexDirection:"row-reverse",
-    justifyContent:"space-between",
-    flex:1,
-    top:45,
-    padding:20,
-    backgroundColor:"#cccbc8",
+    flexDirection: "row-reverse",
+    justifyContent: "space-between",
+    flex: 1,
+    top: 45,
+    padding: 20,
+    backgroundColor: "#cccbc8",
     fontSize: 14,
-    fontWeight: 700
+    fontWeight: 700,
   },
   cUSDView: {
     width: 20,
@@ -296,7 +305,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 700,
   },
-  mainV:{
-    flexDirection:"row"
-  }
+  mainV: {
+    flexDirection: "row",
+  },
 });

@@ -1,0 +1,24 @@
+{
+    "CELO": {
+        "DESTINATION_ADDRESS": "0x3Ca7CdcFB98b066D6e8fEbe45a95C2FE911Bf138"
+    },
+    "SERVER":{
+        "URL":"https://smx.saldo.mx/api"
+    },
+    "COMPANY_LIST":[
+    { "value": 12, "label": "Agua CDMX" },
+    { "value": 7, "label": "Cablemas" },
+    { "value": 1, "label": "CFE" },
+    { "value": 13, "label": "Dish" },
+    { "value": 11, "label": "EcoGas" },
+    { "value": 8, "label": "Gas Natural" },
+    { "value": 2, "label": "Infonavit" },
+    { "value": 34, "label": "Izzi" },
+    { "value": 95, "label": "MaxiGas" },
+    { "value": 6, "label": "Megacable" },
+    { "value": 66, "label": "Plan Telcel" },
+    { "value": 5, "label": "SKY" },
+    { "value": 111, "label": "Telmex" },
+    { "value": 88, "label": "Total Play" }
+  ]
+}
