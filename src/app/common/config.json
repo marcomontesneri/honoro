@@ -3,7 +3,7 @@
         "DESTINATION_ADDRESS": "0x3Ca7CdcFB98b066D6e8fEbe45a95C2FE911Bf138"
     },
     "SERVER":{
-        "URL":"https://smx.saldo.mx/api"
+        "URL":"https://pagos.saldo.mx/api"
     },
     "COMPANY_LIST":[
     { "value": 12, "label": "Agua CDMX" },
