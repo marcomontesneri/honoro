@@ -1,50 +1,64 @@
-import React, { Component } from "react";
+import React from "react";
 import {
-  Button,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Alert,
 } from "react-native";
 import {
-  requestTxSig,
-  waitForSignedTxs,
   requestAccountAddress,
   waitForAccountAuth,
-  FeeCurrency,
   // Ensure that we are importing the functions from dappkit/lib/web
 } from "@celo/dappkit/lib/web";
+import Spinner from "react-native-loading-spinner-overlay";
 
 import { newKitFromWeb3 } from "@celo/contractkit";
 import Web3 from "web3";
 import { Card } from "react-native-elements";
-
+import CONFIG from "./../common/config.json";
 // set up ContractKit, using forno as a provider
 // testnet
-export const web3 = new Web3("https://alfajores-forno.celo-testnet.org");
+// export const web3 = new Web3("https://alfajores-forno.celo-testnet.org");
 // mainnet -- comment out the above, uncomment below for mainnet
-// export const web3 = new Web3('https://forno.celo.org');
+export const web3 = new Web3("https://forno.celo.org");
 
 // @ts-ignore
 export const kit = newKitFromWeb3(web3);
-export default class Login extends Component<any, any> {
+export default class Login extends React.Component<any, any> {
   state = {
     status: null,
     address: null,
     phoneNumber: null,
     isUserExist: null,
     user: null,
+    spinner: false,
   };
   componentDidMount() {
-    setTimeout(() => {
+    this.setState({ spinner: true });
+    setTimeout(()=>{
       let userInfo = JSON.parse(localStorage.getItem("usr"));
       if (userInfo === null) {
         this.setState({ isUserExist: false });
+        this.setState({ spinner: false });
       } else {
-        this.setState({ isUserExist: true, user: userInfo });
+        fetch(`${CONFIG.SERVER.URL}/celo/balances?address=${userInfo.address}`, {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.json())
+          .then((result: any) => {
+              this.setState({ isUserExist: true, user: userInfo,result: result,spinner: false });
+          })
+          .catch((err) => {
+            console.log(err);
+            this.setState({ spinner: false });
+          });
       }
-    }, 0);
+
+    },100);
   }
 
   login = async () => {
@@ -53,7 +67,7 @@ export default class Login extends Component<any, any> {
     const requestId = "login";
 
     // A string that will be displayed to the user, indicating the DApp requesting access/signature
-    const dappName = "Web DappKit";
+    const dappName = "Honoro";
     // Ask the Celo Alfajores Wallet for user info
     requestAccountAddress({
       requestId,
@@ -87,67 +101,16 @@ export default class Login extends Component<any, any> {
     }
   };
 
-  // transfer = async () => {
-  //   if (this.state.address) {
-  //     console.log("Entering transfer");
-  //     const requestId = "transfer";
-  //     const dappName = "Hello Celo";
-
-  //     // Replace with your own account address and desired value in WEI to transfer
-  //     const transferToAccount = "0x3Ca7CdcFB98b066D6e8fEbe45a95C2FE911Bf138";
-  //     const transferValue = "1";
-
-  //     // Create a transaction object using ContractKit
-  //     const stableToken = await kit.contracts.getStableToken();
-  //     const txObject = stableToken.transfer(transferToAccount, transferValue)
-  //       .txo;
-
-  //     // Send a request to the Celo wallet to send an update transaction to the HelloWorld contract
-  //     requestTxSig(
-  //       // @ts-ignore
-  //       kit,
-  //       [
-  //         {
-  //           // @ts-ignore
-  //           tx: txObject,
-  //           from: this.state.address!,
-  //           to: stableToken.address,
-  //           feeCurrency: FeeCurrency.cUSD,
-  //         },
-  //       ],
-  //       { requestId, dappName, callback: window.location.href }
-  //     );
-
-  //     // Get the response from the Celo wallet
-  //     // Wait for signed transaction object and handle possible timeout
-  //     let rawTx;
-  //     try {
-  //       const dappkitResponse = await waitForSignedTxs(requestId);
-  //       rawTx = dappkitResponse.rawTxs[0];
-  //     } catch (error) {
-  //       console.log(error);
-  //       this.setState({ status: "transaction signing timed out, try again." });
-  //       return;
-  //     }
-
-  //     // Wait for transaction result and check for success
-  //     let status;
-  //     const tx = await kit.connection.sendSignedTransaction(rawTx);
-  //     const receipt = await tx.waitReceipt();
-
-  //     if (receipt.status) {
-  //       status = "transfer succeeded with receipt: " + receipt.transactionHash;
-  //     } else {
-  //       console.log(JSON.stringify(receipt));
-  //       status = "failed to send transaction";
-  //     }
-  //     this.setState({ status: status });
-  //   }
-  // };
-
   render() {
     return (
+      
       <View style={styles.container}>
+                <Spinner
+          visible={this.state.spinner}
+          textContent={"Loading..."}
+          textStyle={{color:"#673ab7", fontSize:14}}
+        />
+
         <Card containerStyle={styles.card}>
           {this.state.user === null ? (
             <TouchableOpacity
@@ -157,16 +120,24 @@ export default class Login extends Component<any, any> {
               <Text style={styles.submitButtonText}> Connect to Valora </Text>
             </TouchableOpacity>
           ) : (
-            <View style={styles.mainV}>
-              <View style={styles.cView}>
-                <View style={styles.cUSDView}></View>
-                <Text style={styles.cUSD}>4.00 cUSD</Text>
+            this.state.result && (
+              <View>
+                <View style={styles.mainV}>
+                  <View style={styles.cView}>
+                    <View style={styles.cUSDView}></View>
+                    <Text style={styles.cUSD}>
+                      {this.state.result.cUSDBalance} cUSD
+                    </Text>
+                  </View>
+                  <View style={styles.hView}>
+                    <View style={styles.HNRView}></View>
+                    <Text style={styles.HNR}>
+                      {this.state.result.HNRBalance} HNR
+                    </Text>
+                  </View>
+                </View>
               </View>
-              <View style={styles.hView}>
-                <View style={styles.HNRView}></View>
-                <Text style={styles.HNR}>100.00 HNR</Text>
-              </View>
-            </View>
+            )
           )}
           {this.state.user ? (
             <View style={styles.desc}>
@@ -198,34 +169,8 @@ export default class Login extends Component<any, any> {
             </View>
           )}
           <></>
-          {/* 
-          <TouchableOpacity
-            style={styles.submitButton}
-            
-          >
-            <Text style={styles.submitButtonText}> Transfer </Text> */}
-          {/* </TouchableOpacity> */}
-          {/* <TouchableOpacity onPress={this.gotToLogin}> */}
-          {/* <Text onPress={() => this.props.history.push("/login")}> Back </Text> */}
-          {/* </TouchableOpacity> */}
         </Card>
       </View>
-      // <View style={styles.container}>
-      //   <Card containerStyle={styles.card}>
-      //     {/* <Text style={styles.title}>Honoro</Text> */}
-      //     <Button title="Connect to Valora" onPress={() => this.login()} />
-      //     <Text style={styles.text}>Status: {this.state.status}</Text>
-      //     <Text style={styles.text}>Address: {this.state.address}</Text>
-      //     <Text style={styles.text}>
-      //       Phone number: {this.state.phoneNumber}
-      //     </Text>
-      //     {this.state.address ? (
-      //       <Button title="Transfer" onPress={() => this.transfer()} />
-      //     ) : (
-      //       <></>
-      //     )}
-      //   </Card>
-      // </View>
     );
   }
 }
@@ -265,7 +210,6 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   pay: {
-    // alignItems: "flex-end",
     flexDirection: "row-reverse",
     justifyContent: "space-between",
     flex: 1,

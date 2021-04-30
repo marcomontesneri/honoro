@@ -1,8 +1,7 @@
-import React, { Component, useState } from "react";
+import React from "react";
 import { Actions } from "react-native-router-flux";
-import { Card, ListItem, Button, Icon } from "react-native-elements";
+import { Card } from "react-native-elements";
 import {
-  // 4583700/504c
   StyleSheet,
   TouchableOpacity,
   Text,
@@ -16,8 +15,6 @@ import DropDownPicker from "react-native-dropdown-picker";
 import {
   requestTxSig,
   waitForSignedTxs,
-  requestAccountAddress,
-  waitForAccountAuth,
   FeeCurrency,
   // Ensure that we are importing the functions from dappkit/lib/web
 } from "@celo/dappkit/lib/web";
@@ -27,7 +24,6 @@ import Web3 from "web3";
 import Spinner from "react-native-loading-spinner-overlay";
 
 import CONFIG from "./../common/config.json";
-import { color } from "react-native-reanimated";
 // set up ContractKit, using forno as a provider
 // testnet
 // export const web3 = new Web3("https://alfajores-forno.celo-testnet.org");
@@ -70,7 +66,7 @@ export default class Pay extends React.Component<any, any> {
     fetch(`${CONFIG.SERVER.URL}/transaction/details`, {
       method: "POST",
       headers: {
-        Accept: "application/json",
+        "Accept": "application/json",
         "Content-Type": "application/json",
       },
       body: JSON.stringify(reqObg),
@@ -85,7 +81,7 @@ export default class Pay extends React.Component<any, any> {
         this.setState({ spinner: false });
       });
   }
-  transfer = async (amount: string, reference: any) => {
+  transfer = async () => {
     if (this.state.address) {
       console.log("Entering transfer");
       const requestId = "transfer";
@@ -157,7 +153,6 @@ export default class Pay extends React.Component<any, any> {
     Actions.pop();
   }
   render() {
-    // const [selectedValue, setSelectedValue] = useState("java");
     return (
       <View style={styles.container}>
         <Spinner
@@ -227,7 +222,7 @@ export default class Pay extends React.Component<any, any> {
           )}
           <View style={styles.back}>
             <TouchableOpacity onPress={this.gotToLogin}>
-              <Text onPress={() => this.props.history.push("/login")}>
+              <Text onPress={() => this.props.history.push("/")}>
                 {" "}
                 Back{" "}
               </Text>
@@ -236,9 +231,6 @@ export default class Pay extends React.Component<any, any> {
         </Card>
       </View>
     );
-  }
-  setSelectedValue(itemValue: any): void {
-    throw new Error("Method not implemented.");
   }
 }
 const styles = StyleSheet.create({

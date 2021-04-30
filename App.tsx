@@ -1,6 +1,5 @@
 import React from "react";
 import Navbar from "./src/app/screens/Navbar";
-// import AppContainer from "./src/app/navigations/Navigation";
 import Routes from "./src/app/Routes";
 import { StyleSheet, View } from "react-native";
 const App = () => {
