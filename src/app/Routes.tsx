@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import {BrowserRouter as Router,Switch,Route,Redirect} from "react-router-dom";
 import Login from "./components/Login";
 import Pay from "./components/Pay";
+import TransactionDetails from "./components/transactionDetails";
 
 const Routes = () => {
     return (
@@ -10,6 +11,7 @@ const Routes = () => {
           <Switch>
               <Route path={"/"} exact component={Login}/>
               <Route path={"/pay"} exact component={Pay}/>
+              <Route path={"/transaction/detail"} exact component={TransactionDetails}/>
               <Redirect to={"/"}/>
           </Switch>
   </Router>
