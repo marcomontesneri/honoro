@@ -1,6 +1,6 @@
 {
     "CELO": {
-        "DESTINATION_ADDRESS": "0x765DE816845861e75A25fCA122bb6898B8B1282a"
+        "DESTINATION_ADDRESS": "0x3ca7cdcfb98b066d6e8febe45a95c2fe911bf138"
     },
     "SERVER":{
         "URL":"https://pagos.saldo.mx/api"
