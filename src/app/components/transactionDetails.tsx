@@ -1,13 +1,11 @@
 import React from "react";
-import { Actions } from "react-native-router-flux";
 import { Card } from "react-native-elements";
 import {
   StyleSheet,
-  TouchableOpacity,
   Text,
-  TextInput,
   View,
   Alert,
+  Image,
 } from "react-native";
 
 import { any } from "prop-types";
@@ -17,15 +15,41 @@ import CONFIG from "./../common/config.json";
 
 export default class TransactionDetails extends React.Component<any, any> {
   state = {
-    amount: "",
-    reference: "",
-    company: any,
-    address: CONFIG.CELO.DESTINATION_ADDRESS,
-    mainPage: true,
+    invoice: any,
     spinner: false,
   };
 
-
+  componentDidMount() {
+    this.setState({ spinner: true });
+    setTimeout(() => {
+      let invoiceId = localStorage.getItem("inv");
+      if (invoiceId === null) {
+        Alert.alert("Error", "Invoice id is missing", [
+          { text: "OK", onPress: () => console.log("OK Pressed") },
+        ]);
+      } else {
+        fetch(`${CONFIG.SERVER.URL}/invoice?invoiceId=${invoiceId}`, {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.json())
+          .then((result: any) => {
+            const company = CONFIG.COMPANY_LIST.find(
+              (item) => item.value === result.company_id
+            );
+            result.company = company.label;
+            this.setState({ invoice: result, spinner: false });
+          })
+          .catch((err) => {
+            console.log(err);
+            this.setState({ spinner: false });
+          });
+      }
+    }, 100);
+  }
   save() {
     this.setState({ spinner: true });
     const reqObg = {
@@ -40,9 +64,9 @@ export default class TransactionDetails extends React.Component<any, any> {
     fetch(`${CONFIG.SERVER.URL}/transaction/details`, {
       method: "GET",
       headers: {
-        "Accept": "application/json",
+        Accept: "application/json",
         "Content-Type": "application/json",
-      }
+      },
     })
       .then((response) => response.json())
       .then((result: any) => {
@@ -60,27 +84,38 @@ export default class TransactionDetails extends React.Component<any, any> {
         <Spinner
           visible={this.state.spinner}
           textContent={"Loading..."}
-          textStyle={{color:"#673ab7", fontSize:14}}
+          textStyle={{ color: "#673ab7", fontSize: 14 }}
         />
         <Card containerStyle={styles.card}>
-            <View style={styles.desc}>
-              <Text style={styles.pid}>
-                Payment Id: {this.state.result.invoiceId}
-              </Text>
-              <Text style={styles.status}>Pending</Text>
-              <Text style={styles.title}>Company</Text>
-              <Text style={styles.value}>{this.state.company.label}</Text>
-              <Text style={styles.title}>Reference</Text>
-              <Text style={styles.value}>{this.state.reference}</Text>
-              <Text style={styles.title}>Amount in Pesos</Text>
-              <Text style={styles.value}>
-                {Number(this.state.amount).toFixed(2)}
-              </Text>
-              <Text style={styles.title}>Total in cUSD</Text>
-              <Text style={styles.value}>
-                {this.state.result.updatedAmount}
-              </Text>
-            </View>
+          <View style={styles.desc}>
+            <Image
+              source={{
+                uri:
+                  this.state.invoice.status === "completed"
+                    ? require("./../assets/images/completed.png")
+                    : require("./../assets/images/pending.png"),
+              }}
+              style={styles.icon}
+            />
+            <Text style={styles.pid}>
+              Payment Id: {this.state.invoice.invoice_id}
+            </Text>
+            <Text style={styles.status}>
+              {this.state.invoice.status === "initiated"
+                ? "Pending"
+                : this.state.invoice.status}
+            </Text>
+            <Text style={styles.title}>Company</Text>
+            <Text style={styles.value}>{this.state.invoice.company}</Text>
+            <Text style={styles.title}>Reference</Text>
+            <Text style={styles.value}>{this.state.invoice.reference}</Text>
+            <Text style={styles.title}>Amount in Pesos</Text>
+            <Text style={styles.value}>
+              {Number(this.state.invoice.amount).toFixed(2)}
+            </Text>
+            <Text style={styles.title}>Total in cUSD</Text>
+            <Text style={styles.value}>{this.state.invoice.celo_amount}</Text>
+          </View>
         </Card>
       </View>
     );
@@ -97,7 +132,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     width: 320,
     alignItems: "center",
-    borderRadius: 3,
+    borderRadius: 3
   },
   desc: {
     paddingTop: 10,
@@ -125,6 +160,7 @@ const styles = StyleSheet.create({
     fontWeight: "400",
   },
   spinnerTextStyle: {
-    color: '#FFF'
-  }
+    color: "#FFF",
+  },
+  icon: { width: 40, height: 40, alignSelf: "center", marginBottom: 10 },
 });

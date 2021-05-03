@@ -74,6 +74,7 @@ export default class Pay extends React.Component<any, any> {
       .then((response) => response.json())
       .then((result: any) => {
         console.log(result);
+        localStorage.setItem('inv',String(result.invoiceId));
         this.setState({ mainPage: false, result: result, spinner: false });
       })
       .catch((err) => {
@@ -109,7 +110,7 @@ export default class Pay extends React.Component<any, any> {
             feeCurrency: FeeCurrency.cUSD,
           },
         ],
-        { requestId, dappName, callback: window.location.href }
+        { requestId, dappName, callback: '/transaction/detail' }
       );
 
       // Get the response from the Celo wallet
