@@ -3,7 +3,8 @@
         "DESTINATION_ADDRESS": "0x3ca7cdcfb98b066d6e8febe45a95c2fe911bf138"
     },
     "SERVER":{
-        "URL":"https://pagos.saldo.mx/api"
+        "URL":"https://pagos.saldo.mx/api",
+        "CLIENT":"https://app.honoro.org"
     },
     "COMPANY_LIST":[
     { "value": 12, "label": "Agua CDMX" },

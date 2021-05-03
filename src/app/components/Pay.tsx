@@ -110,7 +110,7 @@ export default class Pay extends React.Component<any, any> {
             feeCurrency: FeeCurrency.cUSD,
           },
         ],
-        { requestId, dappName, callback: '/transaction/detail' }
+        { requestId, dappName, callback: `${CONFIG.SERVER.CLIENT}/transaction/detail` }
       );
 
       // Get the response from the Celo wallet
