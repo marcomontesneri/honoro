@@ -18,6 +18,7 @@ import {
   FeeCurrency,
   // Ensure that we are importing the functions from dappkit/lib/web
 } from "@celo/dappkit/lib/web";
+import { Linking } from 'expo';
 
 import { newKitFromWeb3 } from "@celo/contractkit";
 import Web3 from "web3";
@@ -87,6 +88,7 @@ export default class Pay extends React.Component<any, any> {
       console.log("Entering transfer");
       const requestId = "transfer";
       const dappName = "Honoro";
+      const callback = Linking.makeUrl(`${CONFIG.SERVER.CLIENT}/transaction/detail`);
 
       // Replace with your own account address and desired value in WEI to transfer
       const transferToAccount = CONFIG.CELO.DESTINATION_ADDRESS;
@@ -110,7 +112,7 @@ export default class Pay extends React.Component<any, any> {
             feeCurrency: FeeCurrency.cUSD,
           },
         ],
-        { requestId, dappName, callback: `${CONFIG.SERVER.CLIENT}/transaction/detail` }
+        { requestId, dappName, callback }
       );
 
       // Get the response from the Celo wallet
