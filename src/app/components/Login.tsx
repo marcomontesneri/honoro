@@ -58,7 +58,7 @@ export default class Login extends React.Component<any, any> {
           });
       }
 
-    },100);
+    },1000);
   }
 
   login = async () => {
