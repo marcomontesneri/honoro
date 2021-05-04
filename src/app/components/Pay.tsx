@@ -18,7 +18,7 @@ import {
   FeeCurrency,
   // Ensure that we are importing the functions from dappkit/lib/web
 } from "@celo/dappkit/lib/web";
-import { Linking } from 'expo';
+import { Linking } from "expo";
 
 import { newKitFromWeb3 } from "@celo/contractkit";
 import Web3 from "web3";
@@ -42,6 +42,7 @@ export default class Pay extends React.Component<any, any> {
     address: CONFIG.CELO.DESTINATION_ADDRESS,
     mainPage: true,
     spinner: false,
+    result: any,
   };
 
   handleReference = (reference: string) => {
@@ -55,19 +56,23 @@ export default class Pay extends React.Component<any, any> {
 
   save() {
     this.setState({ spinner: true });
+    let userInfo = JSON.parse(localStorage.getItem("usr"));
     const reqObg = {
       company: {
         amount: this.state.amount,
         company: this.state.company.value,
         reference: this.state.reference,
         source: "honoro",
-        result: any,
-      },
+        userAddress:any
+      }
     };
+    if(userInfo!==null){
+     reqObg.company.userAddress=userInfo.address 
+    }
     fetch(`${CONFIG.SERVER.URL}/transaction/details`, {
       method: "POST",
       headers: {
-        "Accept": "application/json",
+        Accept: "application/json",
         "Content-Type": "application/json",
       },
       body: JSON.stringify(reqObg),
@@ -75,7 +80,7 @@ export default class Pay extends React.Component<any, any> {
       .then((response) => response.json())
       .then((result: any) => {
         console.log(result);
-        localStorage.setItem('inv',String(result.invoiceId));
+        localStorage.setItem("inv", String(result.invoiceId));
         this.setState({ mainPage: false, result: result, spinner: false });
       })
       .catch((err) => {
@@ -88,11 +93,15 @@ export default class Pay extends React.Component<any, any> {
       console.log("Entering transfer");
       const requestId = "transfer";
       const dappName = "Honoro";
-      const callback = Linking.makeUrl(`${CONFIG.SERVER.CLIENT}/transaction/detail`);
+      const callback = Linking.makeUrl(
+        `${CONFIG.SERVER.CLIENT}/transaction/detail`
+      );
 
       // Replace with your own account address and desired value in WEI to transfer
       const transferToAccount = CONFIG.CELO.DESTINATION_ADDRESS;
-      const transferValue = String(Number(this.state.result.updatedAmount)*1000000000000000000);
+      const transferValue = String(
+        Number(this.state.result.updatedAmount) * 1000000000000000000
+      );
 
       // Create a transaction object using ContractKit
       const stableToken = await kit.contracts.getStableToken();
@@ -161,7 +170,7 @@ export default class Pay extends React.Component<any, any> {
         <Spinner
           visible={this.state.spinner}
           textContent={"Loading..."}
-          textStyle={{color:"#673ab7", fontSize:14}}
+          textStyle={{ color: "#673ab7", fontSize: 14 }}
         />
         <Card containerStyle={styles.card}>
           {this.state.mainPage && (
@@ -225,10 +234,7 @@ export default class Pay extends React.Component<any, any> {
           )}
           <View style={styles.back}>
             <TouchableOpacity onPress={this.gotToLogin}>
-              <Text onPress={() => this.props.history.push("/")}>
-                {" "}
-                Back{" "}
-              </Text>
+              <Text onPress={() => this.props.history.push("/")}> Back </Text>
             </TouchableOpacity>
           </View>
         </Card>
@@ -311,6 +317,6 @@ const styles = StyleSheet.create({
     fontWeight: "400",
   },
   spinnerTextStyle: {
-    color: '#FFF'
-  }
+    color: "#FFF",
+  },
 });
