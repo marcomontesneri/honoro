@@ -92,9 +92,7 @@ export default class Pay extends React.Component<any, any> {
       console.log("Entering transfer");
       const requestId = "transfer";
       const dappName = "Honoro";
-      const callback = Linking.makeUrl(
-        `${CONFIG.SERVER.CLIENT}/transaction/detail`
-      );
+      const callback = `${CONFIG.SERVER.CLIENT}/transaction/detail`;
 
       // Replace with your own account address and desired value in WEI to transfer
       const transferToAccount = CONFIG.CELO.DESTINATION_ADDRESS;
@@ -224,7 +222,7 @@ export default class Pay extends React.Component<any, any> {
               <TouchableOpacity
                 style={styles.submitButton}
                 onPress={() =>
-                  this.transfer(this.state.reference, this.state.amount)
+                  this.transfer()
                 }
               >
                 <Text style={styles.submitButtonText}> Confirm Payment </Text>
