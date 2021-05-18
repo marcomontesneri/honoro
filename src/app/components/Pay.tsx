@@ -57,17 +57,16 @@ export default class Pay extends React.Component<any, any> {
   save() {
     this.setState({ spinner: true });
     let userInfo = JSON.parse(localStorage.getItem("usr"));
-    const reqObg = {
+    const reqObj = {
       company: {
         amount: this.state.amount,
         company: this.state.company.value,
         reference: this.state.reference,
         source: "honoro",
-        userAddress:any
       }
     };
     if(userInfo!==null){
-     reqObg.company.userAddress=userInfo.address 
+      reqObj.company.userAddress=userInfo.address 
     }
     fetch(`${CONFIG.SERVER.URL}/transaction/details`, {
       method: "POST",
@@ -75,7 +74,7 @@ export default class Pay extends React.Component<any, any> {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(reqObg),
+      body: JSON.stringify(reqObj),
     })
       .then((response) => response.json())
       .then((result: any) => {
