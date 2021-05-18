@@ -72,7 +72,7 @@ export default class Login extends React.Component<any, any> {
     requestAccountAddress({
       requestId,
       dappName: dappName,
-      callback: window.location.href,
+      callback: `${CONFIG.SERVER.CLIENT}/transaction/detail`,
     });
 
     // Wait for the Celo Wallet response

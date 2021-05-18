@@ -5,7 +5,7 @@ export default class Check extends React.Component<any, any> {
   render() {
     return (
       <View style={styles.container}>
-        {localStorage.getItem("usr")};
+        {localStorage.getItem("usr")}
         <TouchableOpacity onPress={() => localStorage.clear()}>
           <Text> Reset </Text>
         </TouchableOpacity>
