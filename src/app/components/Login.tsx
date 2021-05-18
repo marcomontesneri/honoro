@@ -58,7 +58,7 @@ export default class Login extends React.Component<any, any> {
           });
       }
 
-    },1000);
+    },100);
   }
 
   login = async () => {
@@ -72,7 +72,7 @@ export default class Login extends React.Component<any, any> {
     requestAccountAddress({
       requestId,
       dappName: dappName,
-      callback: `${CONFIG.SERVER.CLIENT}/transaction/detail`,
+      callback: window.location.href,
     });
 
     // Wait for the Celo Wallet response
@@ -85,7 +85,7 @@ export default class Login extends React.Component<any, any> {
           phoneNumber: dappkitResponse.phoneNumber,
           loggedIn: true,
         });
-      }, 100);
+      }, 3000);
       let userInfo = {
         status: "Login succeeded",
         address: dappkitResponse.address,
