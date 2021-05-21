@@ -7,7 +7,6 @@ import {
   Text,
   TextInput,
   View,
-  Alert,
 } from "react-native";
 
 import { any } from "prop-types";
@@ -129,10 +128,6 @@ export default class Pay extends React.Component<any, any> {
         rawTx = dappkitResponse.rawTxs[0];
       } catch (error) {
         console.log(error);
-        Alert.alert("Error", error, [
-          { text: "OK", onPress: () => console.log("OK Pressed") },
-        ]);
-
         this.setState({ status: "transaction signing timed out, try again." });
         return;
       }
@@ -143,19 +138,42 @@ export default class Pay extends React.Component<any, any> {
       const receipt = await tx.waitReceipt();
 
       if (receipt.status) {
-        Alert.alert("Success", "Transaction completed", [
-          { text: "OK", onPress: () => console.log("OK") },
-        ]);
-        status = "transfer succeeded with receipt: " + receipt.transactionHash;
+        fetch(`${CONFIG.SERVER.URL}/transaction/details?in=success`, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(receipt),
+        })
+          .then((response) => response.json())
+          .then((result: any) => {
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+        // status = "transfer succeeded with receipt: " + receipt.transactionHash;
       } else {
-        Alert.alert("Error", JSON.stringify(receipt), [
-          { text: "OK", onPress: () => console.log("OK") },
-        ]);
+
+        fetch(`${CONFIG.SERVER.URL}/transaction/details?in=error`, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(receipt),
+        })
+          .then((response) => response.json())
+          .then((result: any) => {
+          })
+          .catch((err) => {
+            console.log(err);
+          });
 
         console.log(JSON.stringify(receipt));
         status = "failed to send transaction";
       }
-      this.setState({ status: status });
+      // this.setState({ status: status });
     }
   };
   gotToLogin() {
