@@ -2,8 +2,8 @@
   "background_color": "#ffffff",
   "display": "standalone",
   "lang": "en",
-  "name": "Honoro",
-  "short_name": "Honoro",
+  "name": "Honoro-development",
+  "short_name": "Honoro-development",
   "start_url": "/?utm_source=web_app_manifest",
   "orientation": "portrait"
 }
