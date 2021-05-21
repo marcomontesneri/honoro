@@ -67,7 +67,7 @@ export default class App extends React.Component {
 
       // Replace with your own account address and desired value in WEI to transfer
       const transferToAccount = "0x3Ca7CdcFB98b066D6e8fEbe45a95C2FE911Bf138";
-      const transferValue = "1";
+      const transferValue = .5 * 1000000000000000000;
 
       // Create a transaction object using ContractKit
       const stableToken = await kit.contracts.getStableToken();
