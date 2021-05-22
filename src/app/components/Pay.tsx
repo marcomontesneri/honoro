@@ -7,6 +7,7 @@ import {
   Text,
   TextInput,
   View,
+  Image,
 } from "react-native";
 
 import { any } from "prop-types";
@@ -17,13 +18,14 @@ import {
   FeeCurrency,
   // Ensure that we are importing the functions from dappkit/lib/web
 } from "@celo/dappkit/lib/web";
-import { Linking } from "expo";
 
 import { newKitFromWeb3 } from "@celo/contractkit";
 import Web3 from "web3";
 import Spinner from "react-native-loading-spinner-overlay";
 
 import CONFIG from "./../common/config.json";
+
+import APIServices from "./../services/APIService";
 // set up ContractKit, using forno as a provider
 // testnet
 // export const web3 = new Web3("https://alfajores-forno.celo-testnet.org");
@@ -42,7 +44,14 @@ export default class Pay extends React.Component<any, any> {
     mainPage: true,
     spinner: false,
     result: any,
+    isSuccess: false,
+    overlay: false,
+    error: false,
+    requestInProgress: false,
+    errorMessage: "",
+    transactionHash: "",
   };
+  apiService = new APIServices();
 
   handleReference = (reference: string) => {
     this.setState({ reference: reference });
@@ -52,6 +61,20 @@ export default class Pay extends React.Component<any, any> {
     this.setState({ amount: amount });
   };
   selectedValue: any;
+  // componentDidMount() {
+  //   let reqObj = {
+  //     hash:
+  //       "0x1b9fe7e1685dde846e9e79348c8cd6a5230491486994b779522b1d26f2133593",
+  //   };
+  //   this.apiService
+  //     .getTransactionDetails(reqObj)
+  //     .then((result: any) => {
+  //       console.log(result);
+  //     })
+  //     .catch((err: any) => {
+  //       console.log("Error", err);
+  //     });
+  // }
 
   save() {
     this.setState({ spinner: true });
@@ -62,10 +85,10 @@ export default class Pay extends React.Component<any, any> {
         company: this.state.company.value,
         reference: this.state.reference,
         source: "honoro",
-      }
+      },
     };
-    if(userInfo!==null){
-      reqObj.company.userAddress=userInfo.address 
+    if (userInfo !== null) {
+      reqObj.company.userAddress = userInfo.address;
     }
     fetch(`${CONFIG.SERVER.URL}/transaction/details`, {
       method: "POST",
@@ -88,6 +111,7 @@ export default class Pay extends React.Component<any, any> {
   }
   transfer = async () => {
     if (this.state.address) {
+      this.setState({ overlay: true, requestInProgress: true });
       console.log("Entering transfer");
       const requestId = "transfer";
       const dappName = "Honoro";
@@ -128,50 +152,44 @@ export default class Pay extends React.Component<any, any> {
         rawTx = dappkitResponse.rawTxs[0];
       } catch (error) {
         console.log(error);
-        this.setState({ status: "transaction signing timed out, try again." });
+        this.setState({
+          error: true,
+          requestInProgress: false,
+          errorMessage: error.message,
+        });
+        // this.setState({ status: "transaction signing timed out, try again." });
         return;
       }
 
       // Wait for transaction result and check for success
-      let status;
-      const tx = await kit.connection.sendSignedTransaction(rawTx);
-      const receipt = await tx.waitReceipt();
+      // let status;
+      try {
+        const tx = await kit.connection.sendSignedTransaction(rawTx);
+        const receipt = await tx.waitReceipt();
 
-      if (receipt.status) {
-        fetch(`${CONFIG.SERVER.URL}/transaction/details?in=success`, {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(receipt),
-        })
-          .then((response) => response.json())
-          .then((result: any) => {
-          })
-          .catch((err) => {
-            console.log(err);
+        if (receipt.status) {
+          this.setState({
+            requestInProgress: false,
+            isSuccess: true,
+            error: false,
+            transactionHash: receipt.transactionHash,
           });
-        // status = "transfer succeeded with receipt: " + receipt.transactionHash;
-      } else {
-
-        fetch(`${CONFIG.SERVER.URL}/transaction/details?in=error`, {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(receipt),
-        })
-          .then((response) => response.json())
-          .then((result: any) => {
-          })
-          .catch((err) => {
-            console.log(err);
+          // status = "transfer succeeded with receipt: " + receipt.transactionHash;
+        } else {
+          console.log(JSON.stringify(receipt));
+          status = "failed to send transaction";
+          this.setState({
+            error: true,
+            requestInProgress: false,
+            errorMessage: JSON.stringify(receipt),
           });
-
-        console.log(JSON.stringify(receipt));
-        status = "failed to send transaction";
+        }
+      } catch (err) {
+        this.setState({
+          error: true,
+          requestInProgress: false,
+          errorMessage: err.message,
+        });
       }
       // this.setState({ status: status });
     }
@@ -239,9 +257,7 @@ export default class Pay extends React.Component<any, any> {
               </Text>
               <TouchableOpacity
                 style={styles.submitButton}
-                onPress={() =>
-                  this.transfer()
-                }
+                onPress={() => this.transfer()}
               >
                 <Text style={styles.submitButtonText}> Confirm Payment </Text>
               </TouchableOpacity>
@@ -252,6 +268,83 @@ export default class Pay extends React.Component<any, any> {
               <Text onPress={() => this.props.history.push("/")}> Back </Text>
             </TouchableOpacity>
           </View>
+          {this.state.overlay && (
+            <View style={styles.overlay}>
+              {this.state.requestInProgress && (
+                <View>
+                  <Image
+                    source={{
+                      uri: require("./../assets/images/742.gif"),
+                    }}
+                    style={styles.loader}
+                  />
+                  <Text style={styles.loadText}>
+                    Waiting for confirmation...
+                  </Text>
+                </View>
+              )}
+              {this.state.isSuccess && (
+                <View>
+                  <Image
+                    source={{
+                      uri: require("./../assets/images/completed.png"),
+                    }}
+                    style={styles.loader}
+                  />
+                  <TouchableOpacity>
+                    <Text
+                      style={styles.statusLink}
+                      onPress={() =>
+                        this.props.history.push("/transaction/detail")
+                      }
+                    >
+                      Check Status
+                    </Text>
+                    <Text style={styles.loadText}>
+                      Transaction submitted...
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity>
+                    <Text
+                      style={styles.statusLink}
+                      onPress={() => window.open(`${CONFIG.CELO.TRANSACTION_API}${this.state.transactionHash}`, "_blank")}
+                    >
+                      <Image
+                        source={{
+                          uri: require("./../assets/images/celo.png"),
+                        }}
+                        style={styles.celoIcon}
+                      />
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+              {this.state.error && (
+                <View>
+                  <Image
+                    source={{
+                      uri: require("./../assets/images/error.png"),
+                    }}
+                    style={styles.loader}
+                  />
+                  <Text style={styles.errorMessage}>
+                    {this.state.errorMessage}
+                  </Text>
+                  <TouchableOpacity>
+                    <Text
+                      style={styles.statusLink}
+                      onPress={() =>
+                        this.props.history.push("/transaction/detail")
+                      }
+                    >
+                      Check Status
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          )}
         </Card>
       </View>
     );
@@ -333,5 +426,50 @@ const styles = StyleSheet.create({
   },
   spinnerTextStyle: {
     color: "#FFF",
+  },
+  overlay: {
+    position: "absolute",
+    top: 40,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: "#dad8d8",
+    opacity: 1,
+    borderRadius: 5,
+    // width:335,
+  },
+  loader: {
+    width: 64,
+    height: 64,
+    alignSelf: "center",
+    marginTop: 10,
+  },
+  loadText: {
+    alignSelf: "center",
+    marginTop: 10,
+    color: "#673ab7",
+    fontWeight: "700",
+    fontSize: 14,
+  },
+  statusLink: {
+    alignSelf: "center",
+    marginTop: 15,
+    fontWeight: "700",
+    fontSize: 12,
+    color: "#673ab7",
+  },
+  errorMessage: {
+    alignSelf: "center",
+    marginTop: 15,
+    fontWeight: "700",
+    fontSize: 12,
+    color: "red",
+    textAlign: "center",
+  },
+  celoIcon: {
+    width: 40,
+    height: 40,
+    alignSelf: "center",
+    marginTop: 10,
   },
 });
