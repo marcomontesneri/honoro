@@ -44,8 +44,8 @@ export default class Pay extends React.Component<any, any> {
     mainPage: true,
     spinner: false,
     result: any,
-    isSuccess: false,
-    overlay: false,
+    isSuccess: true,
+    overlay: true,
     error: false,
     requestInProgress: false,
     errorMessage: "",
@@ -306,16 +306,22 @@ export default class Pay extends React.Component<any, any> {
                   </TouchableOpacity>
 
                   <TouchableOpacity>
+                    <Image
+                      source={{
+                        uri: require("./../assets/images/celo.png"),
+                      }}
+                      style={styles.celoIcon}
+                    />
                     <Text
                       style={styles.statusLink}
-                      onPress={() => window.open(`${CONFIG.CELO.TRANSACTION_API}${this.state.transactionHash}`, "_blank")}
+                      onPress={() =>
+                        window.open(
+                          `${CONFIG.CELO.TRANSACTION_EXPLORER_LINK}${this.state.transactionHash}/internal_transactions`,
+                          "_blank"
+                        )
+                      }
                     >
-                      <Image
-                        source={{
-                          uri: require("./../assets/images/celo.png"),
-                        }}
-                        style={styles.celoIcon}
-                      />
+                       See Transaction
                     </Text>
                   </TouchableOpacity>
                 </View>

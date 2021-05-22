@@ -1,7 +1,8 @@
 {
     "CELO": {
         "DESTINATION_ADDRESS": "0x3ca7cdcfb98b066d6e8febe45a95c2fe911bf138",
-        "TRANSACTION_API": "https://explorer.celo.org/api?module=transaction&action=gettxinfo&txhash="
+        "TRANSACTION_API": "https://explorer.celo.org/api?module=transaction&action=gettxinfo&txhash=",
+        "TRANSACTION_EXPLORER_LINK":"https://explorer.celo.org/tx/"
     },
     "SERVER": {
         "URL": "https://pagos.saldo.mx/api",
