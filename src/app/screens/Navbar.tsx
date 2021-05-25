@@ -1,13 +1,15 @@
 import React, { Component } from "react";
-import { Text, View, StyleSheet, TextInput } from "react-native";
+import { Text, View, StyleSheet, TextInput, TouchableOpacity, Linking } from "react-native";
 // import { Header } from "react-native-elements";
 // import { SafeAreaProvider } from "react-native-safe-area-context";
 
-export default class Navbar extends Component {
+export default class Navbar extends Component<any, any> {
   render() {
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>Honoro</Text>
+           <TouchableOpacity>
+            <Text style={styles.text} onPress={() => Linking.openURL('/')}>Honoro</Text>
+           </TouchableOpacity>
         </View>
     );
   }

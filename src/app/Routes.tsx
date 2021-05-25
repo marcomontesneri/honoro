@@ -5,6 +5,7 @@ import Login from "./components/Login";
 import Pay from "./components/Pay";
 import Check from "./components/Check";
 import TransactionDetails from "./components/transactionDetails";
+import Transaction from "./components/Transaction";
 
 const Routes = () => {
     return (
@@ -14,6 +15,7 @@ const Routes = () => {
               <Route path={"/pay"} exact component={Pay}/>
               <Route path={"/check"} exact component={Check}/>
               <Route path={"/transaction/detail"} exact component={TransactionDetails}/>
+              <Route path={"/transaction"} exact component={Transaction}/>
               <Redirect to={"/"}/>
           </Switch>
   </Router>

@@ -153,12 +153,12 @@ export default class Login extends React.Component<any, any> {
           {this.state.user && (
             <View style={styles.pay}>
               <TouchableOpacity>
-                <Text onPress={() => this.props.history.push("/pay")}>
-                  Borrow
+                <Text onPress={() => this.props.history.push("/transaction")}>
+                  History
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity>
-                <Text onPress={() => this.props.history.push("/pay")}>
+                <Text>
                   Repay
                 </Text>
               </TouchableOpacity>
