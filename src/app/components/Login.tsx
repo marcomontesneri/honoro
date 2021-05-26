@@ -162,7 +162,7 @@ export default class Login extends React.Component<any, any> {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity>
-                <Text>Repay</Text>
+                <Text onPress={() => this.props.history.push("/offers")}>get cUSD</Text>
               </TouchableOpacity>
 
               <TouchableOpacity>
