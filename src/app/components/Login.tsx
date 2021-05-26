@@ -55,6 +55,7 @@ export default class Login extends React.Component<any, any> {
   }
 
   login = async () => {
+    this.setState({ spinner: true });
     console.log("entering login");
     // A string you can pass to DAppKit, that you can use to listen to the response for that request
     const requestId = "login";
