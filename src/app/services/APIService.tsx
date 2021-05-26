@@ -19,4 +19,77 @@ export default class APIServices {
         });
     });
   }
+  getAccountDetails(reqObj: any) {
+    return new Promise((resolve, reject) => {
+      fetch(`${CONFIG.SERVER.URL}/celo/balances?address=${reqObj.address}`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((result: any) => {
+          resolve(result);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+  getInvoiceList(reqObj: any) {
+    return new Promise((resolve, reject) => {
+      fetch(`${CONFIG.SERVER.URL}/invoices?u=${reqObj.address}&s=honoro`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((result: any) => {
+          resolve(result);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+  saveTransactionDraft(reqObj: any) {
+    return new Promise((resolve, reject) => {
+      fetch(`${CONFIG.SERVER.URL}/transaction/details`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(reqObj),
+      })
+        .then((response) => response.json())
+        .then((result: any) => {
+          resolve(result);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+  getInvoice(reqObj: any) {
+    return new Promise((resolve, reject) => {
+      fetch(`${CONFIG.SERVER.URL}/invoice?invoiceId=${reqObj.invoiceId}`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((result: any) => {
+          resolve(result);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
 }

@@ -90,15 +90,7 @@ export default class Pay extends React.Component<any, any> {
     if (userInfo !== null) {
       reqObj.company.userAddress = userInfo.address;
     }
-    fetch(`${CONFIG.SERVER.URL}/transaction/details`, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(reqObj),
-    })
-      .then((response) => response.json())
+    this.apiService.saveTransactionDraft(reqObj)
       .then((result: any) => {
         console.log(result);
         localStorage.setItem("inv", String(result.invoiceId));

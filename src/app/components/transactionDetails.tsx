@@ -1,24 +1,19 @@
 import React from "react";
 import { Card } from "react-native-elements";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Alert,
-  Image,
-} from "react-native";
+import { StyleSheet, Text, View, Alert, Image } from "react-native";
 
 import { any } from "prop-types";
 import Spinner from "react-native-loading-spinner-overlay";
 
 import CONFIG from "./../common/config.json";
+import APIServices from "./../services/APIService";
 
 export default class TransactionDetails extends React.Component<any, any> {
   state = {
     invoice: any,
     spinner: false,
   };
-
+  apiService = new APIServices();
   componentDidMount() {
     this.setState({ spinner: true });
     setTimeout(() => {
@@ -28,14 +23,12 @@ export default class TransactionDetails extends React.Component<any, any> {
           { text: "OK", onPress: () => console.log("OK Pressed") },
         ]);
       } else {
-        fetch(`${CONFIG.SERVER.URL}/invoice?invoiceId=${invoiceId}`, {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        })
-          .then((response) => response.json())
+        let reqObj = {
+          invoiceId: invoiceId,
+        };
+
+        this.apiService
+          .getInvoice(reqObj)
           .then((result: any) => {
             const company = CONFIG.COMPANY_LIST.find(
               (item) => item.value === result.company_id
@@ -49,34 +42,6 @@ export default class TransactionDetails extends React.Component<any, any> {
           });
       }
     }, 100);
-  }
-  save() {
-    this.setState({ spinner: true });
-    const reqObg = {
-      company: {
-        amount: this.state.amount,
-        company: this.state.company.value,
-        reference: this.state.reference,
-        source: "honoro",
-        result: any,
-      },
-    };
-    fetch(`${CONFIG.SERVER.URL}/transaction/details`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => response.json())
-      .then((result: any) => {
-        console.log(result);
-        this.setState({ mainPage: false, result: result, spinner: false });
-      })
-      .catch((err) => {
-        console.log(err);
-        this.setState({ spinner: false });
-      });
   }
   render() {
     return (
@@ -132,7 +97,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     width: 320,
     alignItems: "center",
-    borderRadius: 3
+    borderRadius: 3,
   },
   desc: {
     paddingTop: 10,

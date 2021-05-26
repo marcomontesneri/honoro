@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import {
   requestAccountAddress,
   waitForAccountAuth,
@@ -22,6 +17,7 @@ import CONFIG from "./../common/config.json";
 // mainnet -- comment out the above, uncomment below for mainnet
 export const web3 = new Web3("https://forno.celo.org");
 
+import APIServices from "./../services/APIService";
 // @ts-ignore
 export const kit = newKitFromWeb3(web3);
 export default class Login extends React.Component<any, any> {
@@ -33,32 +29,29 @@ export default class Login extends React.Component<any, any> {
     user: null,
     spinner: false,
   };
+  apiService = new APIServices();
   componentDidMount() {
     this.setState({ spinner: true });
-    setTimeout(()=>{
-      let userInfo = JSON.parse(localStorage.getItem("usr"));
-      if (userInfo === null) {
-        this.setState({ isUserExist: false });
+    let userInfo = JSON.parse(localStorage.getItem("usr"));
+    if (userInfo === null) {
+      this.setState({ isUserExist: false });
+      this.setState({ spinner: false });
+    } else {
+      let reqObj = {
+        address: userInfo.address,
+      };
+      this.apiService.getAccountDetails(reqObj)
+      .then((result:any)=>{
+        this.setState({
+          isUserExist: true,
+          user: {...userInfo,...result},
+          spinner: false,
+        });
+      }).catch((err:any)=>{
+        console.log(err);
         this.setState({ spinner: false });
-      } else {
-        fetch(`${CONFIG.SERVER.URL}/celo/balances?address=${userInfo.address}`, {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        })
-          .then((response) => response.json())
-          .then((result: any) => {
-              this.setState({ isUserExist: true, user: userInfo,result: result,spinner: false });
-          })
-          .catch((err) => {
-            console.log(err);
-            this.setState({ spinner: false });
-          });
-      }
-
-    },100);
+      })
+    }
   }
 
   login = async () => {
@@ -78,37 +71,47 @@ export default class Login extends React.Component<any, any> {
     // Wait for the Celo Wallet response
     try {
       const dappkitResponse = await waitForAccountAuth(requestId);
-      setTimeout(() => {
-        this.setState({
-          status: "Login succeeded",
-          address: dappkitResponse.address,
-          phoneNumber: dappkitResponse.phoneNumber,
-          loggedIn: true,
-        });
-      }, 3000);
       let userInfo = {
         status: "Login succeeded",
         address: dappkitResponse.address,
         phoneNumber: dappkitResponse.phoneNumber,
       };
       localStorage.setItem("usr", JSON.stringify(userInfo));
+      
+
+      let reqObj = {
+        address: dappkitResponse.address,
+      };
+      this.apiService.getAccountDetails(reqObj)
+      .then((result:any)=>{
+        this.setState({
+          status: "Login succeeded",
+          isUserExist: true,
+          user: {...userInfo,...result},
+          spinner: false,
+          loggedIn: true,
+        });
+      }).catch((err:any)=>{
+        console.log(err);
+        this.setState({ spinner: false });
+      })
       // Catch and handle possible timeout errors
     } catch (error) {
       console.log(error);
       this.setState({
-        status: "Login timed out, try again.",
+        status: error.message || "Login timed out, try again.",
+        spinner: false,
       });
     }
   };
 
   render() {
     return (
-      
       <View style={styles.container}>
-                <Spinner
+        <Spinner
           visible={this.state.spinner}
           textContent={"Loading..."}
-          textStyle={{color:"#673ab7", fontSize:14}}
+          textStyle={{ color: "#673ab7", fontSize: 14 }}
         />
 
         <Card containerStyle={styles.card}>
@@ -120,19 +123,19 @@ export default class Login extends React.Component<any, any> {
               <Text style={styles.submitButtonText}> Connect to Valora </Text>
             </TouchableOpacity>
           ) : (
-            this.state.result && (
+            this.state.user && (
               <View>
                 <View style={styles.mainV}>
                   <View style={styles.cView}>
                     <View style={styles.cUSDView}></View>
                     <Text style={styles.cUSD}>
-                      {this.state.result.cUSDBalance} cUSD
+                      {this.state.user.cUSDBalance} cUSD
                     </Text>
                   </View>
                   <View style={styles.hView}>
                     <View style={styles.HNRView}></View>
                     <Text style={styles.HNR}>
-                      {this.state.result.HNRBalance} HNR
+                      {this.state.user.HNRBalance} HNR
                     </Text>
                   </View>
                 </View>
@@ -158,9 +161,7 @@ export default class Login extends React.Component<any, any> {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity>
-                <Text>
-                  Repay
-                </Text>
+                <Text>Repay</Text>
               </TouchableOpacity>
 
               <TouchableOpacity>

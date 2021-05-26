@@ -6,42 +6,42 @@ import Spinner from "react-native-loading-spinner-overlay";
 import { Card } from "react-native-elements";
 
 import CONFIG from "../common/config.json";
+import APIServices from "./../services/APIService";
 
 export default class Transaction extends React.Component {
   state = {
     spinner: false,
     invoices: [],
   };
+  apiService = new APIServices();
   componentDidMount() {
     let userInfo = JSON.parse(localStorage.getItem("usr"));
     if (userInfo === null) {
       this.setState({ spinner: false });
     } else {
       this.setState({ spinner: true });
-      fetch(`${CONFIG.SERVER.URL}/invoices?u=${userInfo.address}`, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => response.json())
+
+      let reqObj = {
+        address: userInfo.address,
+      };
+      this.apiService
+        .getInvoiceList(reqObj)
         .then((result: any) => {
-            result=result.map((invoice:any)=>{
-                const company = CONFIG.COMPANY_LIST.find(
-                    (item) => item.value === invoice.company_id
-                  );
-                  if(company){
-                      invoice.companyName=company.label;
-                  }
-                  return invoice;
-            })
+          result = result.map((invoice: any) => {
+            const company = CONFIG.COMPANY_LIST.find(
+              (item) => item.value === invoice.company_id
+            );
+            if (company) {
+              invoice.companyName = company.label;
+            }
+            return invoice;
+          });
           this.setState({
             invoices: result,
             spinner: false,
           });
         })
-        .catch((err) => {
+        .catch((err: any) => {
           console.log(err);
           this.setState({ spinner: false });
         });
