@@ -56,6 +56,9 @@ export default class Transaction extends React.Component {
             {invoice.companyName}
           </DataTable.Cell>
           <DataTable.Cell style={{ justifyContent: "center" }}>
+            {invoice.reference}
+          </DataTable.Cell>
+          <DataTable.Cell style={{ justifyContent: "center" }}>
             {invoice.celo_amount}
           </DataTable.Cell>
         </DataTable.Row>
@@ -76,6 +79,9 @@ export default class Transaction extends React.Component {
             <DataTable.Header>
               <DataTable.Title style={{ justifyContent: "center" }}>
                 Company
+              </DataTable.Title>
+              <DataTable.Title style={{ justifyContent: "center" }}>
+                Reference
               </DataTable.Title>
               <DataTable.Title style={{ justifyContent: "center" }}>
                 cUSD
@@ -106,7 +112,7 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#ffffff",
-    //   width: 420,
+    width: 400,
     alignItems: "center",
     borderRadius: 5,
   },
