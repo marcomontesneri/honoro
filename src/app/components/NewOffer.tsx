@@ -103,8 +103,6 @@ export default class NewOffer extends React.Component<any, any> {
             <TextInput
               keyboardType="numeric"
               style={styles.input}
-              underlineColorAndroid="transparent"
-              autoCapitalize="none"
               placeholder="0.00"
               autoFocus={true}
               maxLength={5}
@@ -113,9 +111,8 @@ export default class NewOffer extends React.Component<any, any> {
           </View>
           <View>
             <TextInput
+             keyboardType="numeric"
               style={styles.inputFee}
-              underlineColorAndroid="transparent"
-              autoCapitalize="none"
               placeholder="transaction fee"
               maxLength={5}
               onChangeText={this.handleFee}
@@ -124,10 +121,7 @@ export default class NewOffer extends React.Component<any, any> {
           <View>
             <TextInput 
               style={styles.inputFee}
-              underlineColorAndroid="transparent"
-              autoCapitalize="none"
               placeholder="payment method"
-              maxLength={5}
               onChangeText={this.handlePaymentMethod}
               numeric
             />
@@ -222,7 +216,7 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: 700,
     borderBottomWidth: 2,
-    paddingBottom: 5,
+    paddingBottom: 15,
     alignItems: "center",
     outlineColor: "#fff",
     color: "#191954",
@@ -242,13 +236,14 @@ const styles = StyleSheet.create({
     color: "#191954",
     marginLeft: 35,
     position: "relative",
+    outlineStyle: "none",
   },
   prefix: {
     paddingHorizontal: 1,
     color: "#191954",
     fontSize: 36,
     fontWeight: "700",
-    marginTop: 1,
+    marginTop: -5,
   },
   submitButton: {
     backgroundColor: "#3de3a3",
