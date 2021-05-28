@@ -7,33 +7,82 @@ import {
   Image,
   TextInput,
 } from "react-native";
-import CacheServices from "../services/CacheService";
 
 import Spinner from "react-native-loading-spinner-overlay";
 import { Card } from "react-native-elements";
+import { showMessage } from "react-native-flash-message";
 
+import CONFIG from "../common/config.json";
 import APIServices from "../services/APIService";
 
-export default class Offer extends React.Component<any, any> {
+export default class NewOffer extends React.Component<any, any> {
   state = {
     spinner: false,
-    offer: {},
+    offers: [],
+    amount: "",
+    fee: "",
+    pMethod: "",
   };
   apiService = new APIServices();
-  cacheService = new CacheServices();
   handleAmount = (amount: string) => {
     this.setState({ amount: amount });
   };
-  save() {}
+  handleFee = (fee: string) => {
+    this.setState({ fee: fee });
+  };
+  handlePaymentMethod = (pMethod: string) => {
+    this.setState({ pMethod: pMethod });
+  };
+  save() {
+    this.setState({ spinner: true });
+    let userInfo = JSON.parse(localStorage.getItem("usr"));
+    let reqObj = {
+      nickname: userInfo.nickname || "Marco",
+      amount: this.state.amount,
+      fee: this.state.fee,
+      paymentMethod: this.state.pMethod,
+    };
+    this.apiService
+      .saveOffer(reqObj)
+      .then((result: any) => {
+        showMessage({
+          message: "Success",
+          description: "Offer created successfully",
+          type: "success",
+          duration: CONFIG.FLASH_TIME,
+        });
+        this.props.history.push("/offers");
+        this.setState({
+          spinner: false,
+        });
+      })
+      .catch((err: any) => {
+        showMessage({
+          message: "Error",
+          description: err.error,
+          type: "danger",
+          duration: CONFIG.FLASH_TIME,
+        });
+        console.log(err);
+        this.setState({ spinner: false });
+      });
+  }
   componentDidMount() {
     let userInfo = JSON.parse(localStorage.getItem("usr"));
     if (userInfo === null) {
-    } else {
-      this.setState({ offer: this.cacheService.getOffer() });
-    }
+      return this.props.history.push("/offers");
+    } 
   }
+  componentWillUnmount() {
+    // fix Warning: Can't perform a React state update on an unmounted component
+    this.setState = (state,callback)=>{
+        return;
+    };
+}
 
   render() {
+    const { amount, fee, pMethod } = this.state;
+    const enabled = amount.length > 0 && pMethod.length > 0 && fee.length > 0;
     return (
       <View style={styles.container}>
         <Spinner
@@ -48,34 +97,11 @@ export default class Offer extends React.Component<any, any> {
           style={styles.logo}
         />
         <Text style={styles.logoText}>cUSD</Text>
-        {this.state.offer && (
-          <Card containerStyle={styles.topCard}>
-            <View style={styles.cardItem}>
-              <View>
-                <Text style={styles.offerTitle}>
-                  {this.state.offer.nickname}
-                </Text>
-              </View>
-              <View>
-                <Text style={styles.offerTitle}>
-                  {this.state.offer.payment_method}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.cardItem}>
-              <Text style={styles.offerDesc}>Max Purchase</Text>
-              <Text style={styles.offerDesc}>${this.state.offer.amount}</Text>
-            </View>
-            <View style={styles.cardItem}>
-              <Text style={styles.offerDesc}>Fees</Text>
-              <Text style={styles.offerDesc}>1% + ${this.state.offer.fee}</Text>
-            </View>
-          </Card>
-        )}
         <Card containerStyle={styles.detailCard}>
           <View style={styles.detailCardItem}>
             <Text style={styles.prefix}>$</Text>
             <TextInput
+              keyboardType="numeric"
               style={styles.input}
               underlineColorAndroid="transparent"
               autoCapitalize="none"
@@ -85,16 +111,33 @@ export default class Offer extends React.Component<any, any> {
               onChangeText={this.handleAmount}
             />
           </View>
-          {/* {this.state.offer && (
-          <View style={{ alignItems: "flex-end" }}>
-            <Text style={styles.postfix}>Max {this.state.offer.amount}</Text>
+          <View>
+            <TextInput
+              style={styles.inputFee}
+              underlineColorAndroid="transparent"
+              autoCapitalize="none"
+              placeholder="transaction fee"
+              maxLength={5}
+              onChangeText={this.handleFee}
+            />
           </View>
-          )} */}
+          <View>
+            <TextInput 
+              style={styles.inputFee}
+              underlineColorAndroid="transparent"
+              autoCapitalize="none"
+              placeholder="payment method"
+              maxLength={5}
+              onChangeText={this.handlePaymentMethod}
+              numeric
+            />
+          </View>
           <TouchableOpacity
+            disabled={!enabled}
             style={styles.submitButton}
             onPress={() => this.save()}
           >
-            <Text style={styles.submitButtonText}> Take Offer </Text>
+            <Text style={styles.submitButtonText}> Create Offer </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{ alignItems: "flex-end" }}
@@ -118,21 +161,10 @@ const styles = StyleSheet.create({
   spinnerTextStyle: {
     color: "#FFF",
   },
-  topCard: {
-    backgroundColor: "#ffffff",
-    width: 280,
-    top: 100,
-    paddingBottom: 8,
-    paddingTop: 8,
-    minHeight: 70,
-    borderRadius: 3,
-    borderBottomWidth: 1,
-    borderBottomColor: "gray",
-  },
   detailCard: {
     backgroundColor: "#ffffff",
     width: 280,
-    minHeight: 70,
+    minHeight: 200,
     top: 100,
     borderRadius: 3,
     margin: 0,
@@ -187,19 +219,36 @@ const styles = StyleSheet.create({
     width: 200,
     paddingTop: 10,
     paddingLeft: 1,
-    fontSize: 25,
+    fontSize: 36,
     fontWeight: 700,
+    borderBottomWidth: 2,
+    paddingBottom: 5,
     alignItems: "center",
     outlineColor: "#fff",
     color: "#191954",
     outlineStyle: "none",
   },
+  inputFee: {
+    height: 40,
+    width: 200,
+    paddingTop: 10,
+    paddingLeft: 1,
+    fontSize: 12,
+    fontWeight: 700,
+    borderBottomWidth: 2,
+    paddingBottom: 5,
+    alignItems: "center",
+    outlineColor: "#fff",
+    color: "#191954",
+    marginLeft: 35,
+    position: "relative",
+  },
   prefix: {
     paddingHorizontal: 1,
     color: "#191954",
-    fontSize: 25,
+    fontSize: 36,
     fontWeight: "700",
-    marginTop: 11,
+    marginTop: 1,
   },
   submitButton: {
     backgroundColor: "#3de3a3",
