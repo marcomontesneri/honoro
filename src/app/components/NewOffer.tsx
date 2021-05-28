@@ -211,12 +211,12 @@ const styles = StyleSheet.create({
   input: {
     height: 40,
     width: 200,
-    paddingTop: 10,
+    // paddingTop: 10,
     paddingLeft: 1,
     fontSize: 36,
     fontWeight: 700,
     borderBottomWidth: 2,
-    paddingBottom: 15,
+    // paddingBottom: 15,
     alignItems: "center",
     outlineColor: "#fff",
     color: "#191954",
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     color: "#191954",
     fontSize: 36,
     fontWeight: "700",
-    marginTop: -5,
+    // marginTop: -5,
   },
   submitButton: {
     backgroundColor: "#3de3a3",
