@@ -97,7 +97,13 @@ export default class Transaction extends React.Component {
           label="1-2 of 6"
         /> */}
           </DataTable>
-        </Card>
+        <TouchableOpacity
+            style={{alignItems:"flex-end", padding:3}}
+            onPress={() => this.props.history.push("/")}
+            >
+            <Text> Back </Text>
+          </TouchableOpacity>
+            </Card>
       </View>
     );
   }

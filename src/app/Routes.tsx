@@ -6,6 +6,8 @@ import Pay from "./components/Pay";
 import Check from "./components/Check";
 import TransactionDetails from "./components/transactionDetails";
 import Transaction from "./components/Transaction";
+import OfferList from "./components/OfferList";
+import Offer from "./components/Offer";
 
 const Routes = () => {
     return (
@@ -16,6 +18,8 @@ const Routes = () => {
               <Route path={"/check"} exact component={Check}/>
               <Route path={"/transaction/detail"} exact component={TransactionDetails}/>
               <Route path={"/transaction"} exact component={Transaction}/>
+              <Route path={"/offers"} exact component={OfferList}/>
+              <Route path={"/offer/create"} exact component={Offer}/>
               <Redirect to={"/"}/>
           </Switch>
   </Router>
