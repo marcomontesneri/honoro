@@ -129,4 +129,29 @@ export default class APIServices {
         });
     });
   }
+  saveUserInfo(reqObj: any) {
+    return new Promise((resolve, reject) => {
+      fetch(`${CONFIG.SERVER.URL}/trader`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(reqObj),
+      })
+        .then((response) => {
+          console.log(response);
+          if (response.ok) {
+            response.json().then((result) => resolve(result));
+          } else {
+            response.json().then((error) => {
+              reject(error);
+            });
+          }
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
 }

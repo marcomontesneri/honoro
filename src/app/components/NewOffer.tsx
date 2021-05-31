@@ -37,7 +37,7 @@ export default class NewOffer extends React.Component<any, any> {
     this.setState({ spinner: true });
     let userInfo = JSON.parse(localStorage.getItem("usr"));
     let reqObj = {
-      nickname: userInfo.nickname || "Marco",
+      nickname: userInfo.nickname,
       amount: this.state.amount,
       fee: this.state.fee,
       paymentMethod: this.state.pMethod,

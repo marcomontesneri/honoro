@@ -23,7 +23,7 @@ export default class OfferList extends React.Component<any, any> {
     } else {
       this.setState({ spinner: true });
       let reqObj = {
-        address: userInfo.nickname || "Marco",
+        address: userInfo.nickname,
       };
       this.apiService
         .getOffers(reqObj)
