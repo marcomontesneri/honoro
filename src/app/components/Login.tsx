@@ -55,16 +55,18 @@ export default class Login extends React.Component<any, any> {
       this.apiService
         .getAccountDetails(reqObj)
         .then((result: any) => {
+          let nicknameFlag = true;
           if (!result.trader) {
-            this.setState({ nicknameExist: false });
+            nicknameFlag = false;
           }
-          let u = { ...userInfo, ...result };
+          userInfo.nickname = result.trader.nickname;
+          localStorage.setItem("usr", JSON.stringify(userInfo));
           this.setState({
             isUserExist: true,
             user: { ...userInfo, ...result },
             spinner: false,
+            nicknameExist: nicknameFlag,
           });
-          console.log(this.state.user.trader);
         })
         .catch((err: any) => {
           console.log(err);
@@ -155,7 +157,6 @@ export default class Login extends React.Component<any, any> {
       phoneNumber: this.state.user.phoneNumber,
       address: this.state.user.address,
     };
-    console.log(this.state);
     this.apiService
       .saveUserInfo(reqObj)
       .then((result: any) => {
@@ -200,7 +201,7 @@ export default class Login extends React.Component<any, any> {
         />
 
         <Card containerStyle={styles.card}>
-          {this.state.user === null ? (
+          {Object.keys(this.state.user).length === 0 ? (
             <TouchableOpacity
               style={styles.submitButton}
               onPress={() => this.login()}
@@ -244,7 +245,7 @@ export default class Login extends React.Component<any, any> {
               </Text>
             </View>
           ) : null}
-          {this.state.nicknameExist && this.state.user && (
+          {this.state.nicknameExist && Object.keys(this.state.user).length>0 && (
             <View style={styles.pay}>
               <TouchableOpacity>
                 <Text onPress={() => this.props.history.push("/transaction")}>
