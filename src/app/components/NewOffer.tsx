@@ -59,7 +59,7 @@ export default class NewOffer extends React.Component<any, any> {
       .catch((err: any) => {
         showMessage({
           message: "Error",
-          description: err.error,
+          description: err.error || err.message || err,
           type: "danger",
           duration: CONFIG.FLASH_TIME,
         });
@@ -71,14 +71,14 @@ export default class NewOffer extends React.Component<any, any> {
     let userInfo = JSON.parse(localStorage.getItem("usr"));
     if (userInfo === null) {
       return this.props.history.push("/offers");
-    } 
+    }
   }
   componentWillUnmount() {
     // fix Warning: Can't perform a React state update on an unmounted component
-    this.setState = (state,callback)=>{
-        return;
+    this.setState = (state, callback) => {
+      return;
     };
-}
+  }
 
   render() {
     const { amount, fee, pMethod } = this.state;
@@ -111,7 +111,7 @@ export default class NewOffer extends React.Component<any, any> {
           </View>
           <View>
             <TextInput
-             keyboardType="numeric"
+              keyboardType="numeric"
               style={styles.inputFee}
               placeholder="transaction fee"
               maxLength={5}
@@ -119,7 +119,7 @@ export default class NewOffer extends React.Component<any, any> {
             />
           </View>
           <View>
-            <TextInput 
+            <TextInput
               style={styles.inputFee}
               placeholder="payment method"
               onChangeText={this.handlePaymentMethod}

@@ -58,7 +58,7 @@ export default class Login extends React.Component<any, any> {
           let nicknameFlag = true;
           if (!result.trader) {
             nicknameFlag = false;
-          }else{
+          } else {
             userInfo.nickname = result.trader.nickname;
             localStorage.setItem("usr", JSON.stringify(userInfo));
           }
@@ -100,25 +100,32 @@ export default class Login extends React.Component<any, any> {
     // Wait for the Celo Wallet response
     try {
       const dappkitResponse = await waitForAccountAuth(requestId);
-      let userInfo = {
-        status: "Login succeeded",
-        address: dappkitResponse.address,
-        phoneNumber: dappkitResponse.phoneNumber,
-      };
-      localStorage.setItem("usr", JSON.stringify(userInfo));
-
       let reqObj = {
         address: dappkitResponse.address,
       };
       this.apiService
         .getAccountDetails(reqObj)
         .then((result: any) => {
+          let userInfo: any = {
+            status: "Login succeeded",
+            address: dappkitResponse.address,
+            phoneNumber: dappkitResponse.phoneNumber,
+          };
+          let nicknameFlag = true;
+          if (!result.trader) {
+            nicknameFlag = false;
+          } else {
+            userInfo.nickname = result.trader.nickname;
+          }
+          localStorage.setItem("usr", JSON.stringify(userInfo));
+
           this.setState({
             status: "Login succeeded",
             isUserExist: true,
             user: { ...userInfo, ...result },
             spinner: false,
             loggedIn: true,
+            nicknameExist: nicknameFlag,
           });
         })
         .catch((err: any) => {
@@ -126,7 +133,7 @@ export default class Login extends React.Component<any, any> {
           this.setState({ spinner: false });
           showMessage({
             message: "Error",
-            description: err.error,
+            description: err.error || err.message || err,
             type: "danger",
             duration: CONFIG.FLASH_TIME,
           });
@@ -182,7 +189,7 @@ export default class Login extends React.Component<any, any> {
         this.setState({ spinner: false });
         showMessage({
           message: "Error",
-          description: err.error,
+          description: err.error || err.message || err,
           type: "danger",
           duration: CONFIG.FLASH_TIME,
         });
@@ -246,7 +253,7 @@ export default class Login extends React.Component<any, any> {
               </Text>
             </View>
           ) : null}
-          {this.state.nicknameExist && Object.keys(this.state.user).length>0 && (
+          {this.state.nicknameExist && Object.keys(this.state.user).length > 0 && (
             <View style={styles.pay}>
               <TouchableOpacity>
                 <Text onPress={() => this.props.history.push("/transaction")}>
