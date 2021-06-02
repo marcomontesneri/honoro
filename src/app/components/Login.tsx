@@ -58,9 +58,10 @@ export default class Login extends React.Component<any, any> {
           let nicknameFlag = true;
           if (!result.trader) {
             nicknameFlag = false;
+          }else{
+            userInfo.nickname = result.trader.nickname;
+            localStorage.setItem("usr", JSON.stringify(userInfo));
           }
-          userInfo.nickname = result.trader.nickname;
-          localStorage.setItem("usr", JSON.stringify(userInfo));
           this.setState({
             isUserExist: true,
             user: { ...userInfo, ...result },
@@ -73,7 +74,7 @@ export default class Login extends React.Component<any, any> {
           this.setState({ spinner: false });
           showMessage({
             message: "Error",
-            description: err.error,
+            description: err.error || err.message || err,
             type: "danger",
             duration: CONFIG.FLASH_TIME,
           });
