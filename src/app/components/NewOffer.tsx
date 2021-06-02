@@ -70,7 +70,7 @@ export default class NewOffer extends React.Component<any, any> {
   componentDidMount() {
     let userInfo = JSON.parse(localStorage.getItem("usr"));
     if (userInfo === null) {
-      return this.props.history.push("/offers");
+      return this.props.history.push("/");
     }
   }
   componentWillUnmount() {

@@ -28,7 +28,12 @@ export default class Offer extends React.Component<any, any> {
   componentDidMount() {
     let userInfo = JSON.parse(localStorage.getItem("usr"));
     if (userInfo === null) {
+      return this.props.history.push("/");
     } else {
+      const offer = this.cacheService.getOffer();
+      if (Object.keys(offer).length === 0) {
+        return this.props.history.push("/offers");
+      }
       this.setState({ offer: this.cacheService.getOffer() });
     }
   }

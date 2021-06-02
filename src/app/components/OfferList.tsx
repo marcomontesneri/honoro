@@ -8,11 +8,13 @@ import { Card } from "react-native-elements";
 import CONFIG from "../common/config.json";
 import APIServices from "../services/APIService";
 import CacheServices from "../services/CacheService";
+import { showMessage } from "react-native-flash-message";
 
 export default class OfferList extends React.Component<any, any> {
   state = {
     spinner: false,
     offers: [],
+    nickname: "",
   };
   apiService = new APIServices();
   cacheService = new CacheServices();
@@ -31,6 +33,7 @@ export default class OfferList extends React.Component<any, any> {
           this.setState({
             spinner: false,
             offers: result.offers,
+            nickname: userInfo.nickname,
           });
         })
         .catch((err: any) => {
@@ -49,11 +52,27 @@ export default class OfferList extends React.Component<any, any> {
           key={index}
           activeOpacity={1}
           onPress={() => {
+            if (item.nickname === this.state.nickname) {
+              showMessage({
+                message: "Error",
+                description: "You can not take your own offer",
+                type: "danger",
+                duration: CONFIG.FLASH_TIME,
+              });
+              return false;
+            }
             this.setOffer(item);
             this.props.history.push("/offer/take");
           }}
         >
-          <Card key={index} containerStyle={styles.card}>
+          <Card
+            key={index}
+            containerStyle={
+              item.nickname !== this.state.nickname
+                ? styles.card
+                : styles.cardOp
+            }
+          >
             <View style={styles.cardItem}>
               <View>
                 <Text style={styles.offerTitle}>{item.nickname}</Text>
@@ -120,7 +139,6 @@ export default class OfferList extends React.Component<any, any> {
             </Text>
           </TouchableOpacity>
         </View>
-
       </View>
     );
   }
@@ -144,6 +162,16 @@ const styles = StyleSheet.create({
     overflow: "scroll",
     borderRadius: 3,
     marginTop: 7,
+  },
+  cardOp: {
+    backgroundColor: "#ffffff",
+    width: 280,
+    paddingBottom: 8,
+    paddingTop: 8,
+    overflow: "scroll",
+    borderRadius: 3,
+    marginTop: 7,
+    opacity: 0.6,
   },
   logo: {
     marginTop: 20,
