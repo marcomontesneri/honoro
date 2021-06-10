@@ -7,20 +7,20 @@ import {
   Image,
   TextInput,
 } from "react-native";
-import { DataTable } from "react-native-paper";
+import CacheServices from "../services/CacheService";
 
 import Spinner from "react-native-loading-spinner-overlay";
 import { Card } from "react-native-elements";
 
-import CONFIG from "../common/config.json";
 import APIServices from "../services/APIService";
 
 export default class Offer extends React.Component<any, any> {
   state = {
     spinner: false,
-    offers: [],
+    offer: {},
   };
   apiService = new APIServices();
+  cacheService = new CacheServices();
   handleAmount = (amount: string) => {
     this.setState({ amount: amount });
   };
@@ -28,9 +28,13 @@ export default class Offer extends React.Component<any, any> {
   componentDidMount() {
     let userInfo = JSON.parse(localStorage.getItem("usr"));
     if (userInfo === null) {
-      this.setState({ spinner: false });
+      return this.props.history.push("/");
     } else {
-      this.setState({ spinner: false });
+      const offer = this.cacheService.getOffer();
+      if (Object.keys(offer).length === 0) {
+        return this.props.history.push("/offers");
+      }
+      this.setState({ offer: this.cacheService.getOffer() });
     }
   }
 
@@ -49,24 +53,30 @@ export default class Offer extends React.Component<any, any> {
           style={styles.logo}
         />
         <Text style={styles.logoText}>cUSD</Text>
-        <Card containerStyle={styles.topCard}>
-          <View style={styles.cardItem}>
-            <View>
-              <Text style={styles.offerTitle}>Juna 66</Text>
+        {this.state.offer && (
+          <Card containerStyle={styles.topCard}>
+            <View style={styles.cardItem}>
+              <View>
+                <Text style={styles.offerTitle}>
+                  {this.state.offer.nickname}
+                </Text>
+              </View>
+              <View>
+                <Text style={styles.offerTitle}>
+                  {this.state.offer.payment_method}
+                </Text>
+              </View>
             </View>
-            <View>
-              <Text style={styles.offerTitle}>Zelle</Text>
+            <View style={styles.cardItem}>
+              <Text style={styles.offerDesc}>Max Purchase</Text>
+              <Text style={styles.offerDesc}>${this.state.offer.amount}</Text>
             </View>
-          </View>
-          <View style={styles.cardItem}>
-            <Text style={styles.offerDesc}>Max Purchase</Text>
-            <Text style={styles.offerDesc}>$200</Text>
-          </View>
-          <View style={styles.cardItem}>
-            <Text style={styles.offerDesc}>Fees</Text>
-            <Text style={styles.offerDesc}>1% + $3</Text>
-          </View>
-        </Card>
+            <View style={styles.cardItem}>
+              <Text style={styles.offerDesc}>Fees</Text>
+              <Text style={styles.offerDesc}>1% + ${this.state.offer.fee}</Text>
+            </View>
+          </Card>
+        )}
         <Card containerStyle={styles.detailCard}>
           <View style={styles.detailCardItem}>
             <Text style={styles.prefix}>$</Text>
@@ -80,10 +90,11 @@ export default class Offer extends React.Component<any, any> {
               onChangeText={this.handleAmount}
             />
           </View>
+          {/* {this.state.offer && (
           <View style={{ alignItems: "flex-end" }}>
-            <Text style={styles.postfix}>Max 200</Text>
+            <Text style={styles.postfix}>Max {this.state.offer.amount}</Text>
           </View>
-          {/* <View style={styles.cardItem}> */}
+          )} */}
           <TouchableOpacity
             style={styles.submitButton}
             onPress={() => this.save()}
@@ -91,12 +102,11 @@ export default class Offer extends React.Component<any, any> {
             <Text style={styles.submitButtonText}> Take Offer </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={{alignItems:"flex-end"}}
+            style={{ alignItems: "flex-end" }}
             onPress={() => this.props.history.push("/offers")}
           >
             <Text> Back </Text>
           </TouchableOpacity>
-          {/* </View> */}
         </Card>
       </View>
     );
@@ -119,7 +129,6 @@ const styles = StyleSheet.create({
     top: 100,
     paddingBottom: 8,
     paddingTop: 8,
-    // height: 70,
     minHeight: 70,
     borderRadius: 3,
     borderBottomWidth: 1,
@@ -158,7 +167,6 @@ const styles = StyleSheet.create({
   cardItem: {
     fontSize: 14,
     fontWeight: 700,
-    // flexWrap:"wrap",
     flexDirection: "row",
     justifyContent: "space-between",
     paddingBottom: 10,
@@ -166,7 +174,6 @@ const styles = StyleSheet.create({
   detailCardItem: {
     fontSize: 14,
     fontWeight: 700,
-    // flexWrap:"wrap",
     flexDirection: "row",
     justifyContent: "center",
     paddingBottom: 10,
@@ -181,23 +188,23 @@ const styles = StyleSheet.create({
     color: "#191954",
   },
   input: {
-    // margin: 15,
     height: 40,
     width: 200,
     paddingTop: 10,
-    paddingLeft:1,
-    fontSize: 18,
+    paddingLeft: 1,
+    fontSize: 25,
     fontWeight: 700,
     alignItems: "center",
     outlineColor: "#fff",
     color: "#191954",
+    outlineStyle: "none",
   },
   prefix: {
     paddingHorizontal: 1,
     color: "#191954",
-    fontSize: 22,
+    fontSize: 25,
     fontWeight: "700",
-    marginTop: 10,
+    marginTop: 11,
   },
   submitButton: {
     backgroundColor: "#3de3a3",
@@ -206,7 +213,7 @@ const styles = StyleSheet.create({
     height: 40,
     alignItems: "center",
     textAlign: "center",
-    borderRadius: 5,
+    borderRadius: 23,
     justifyContent: "center",
   },
   submitButtonText: {

@@ -5,7 +5,7 @@
         "TRANSACTION_EXPLORER_LINK":"https://explorer.celo.org/tx/"
     },
     "SERVER": {
-        "URL": "https://pagos.saldo.mx/api",
+        "URL": "https://pagos.saldo.mx/api/honoro",
         "CLIENT": "https://app.honoro.org"
     },
     "COMPANY_LIST": [
@@ -65,5 +65,6 @@
             "value": 88,
             "label": "Total Play"
         }
-    ]
+    ],
+    "FLASH_TIME":"10000"
 }

@@ -2,6 +2,8 @@ import React from "react";
 import Navbar from "./src/app/screens/Navbar";
 import Routes from "./src/app/Routes";
 import { StyleSheet, View } from "react-native";
+import FlashMessage from "react-native-flash-message";
+
 const App = () => {
   return (
     <>
@@ -9,6 +11,8 @@ const App = () => {
     <View style={styles.MainContainer}>
         <Routes />
         </View>
+        {/* GLOBAL FLASH MESSAGE COMPONENT INSTANCE */}
+        <FlashMessage position="top" /> {/* <--- here as last component */}
     </>
   );
 };
