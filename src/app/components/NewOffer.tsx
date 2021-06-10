@@ -11,8 +11,24 @@ import {
 import Spinner from "react-native-loading-spinner-overlay";
 import { Card } from "react-native-elements";
 import { showMessage } from "react-native-flash-message";
+import { newKitFromWeb3 } from "@celo/contractkit";
+import BN from 'bignumber.js'
+
+import {
+  requestTxSig,
+  waitForSignedTxs,
+  FeeCurrency,
+  // Ensure that we are importing the functions from dappkit/lib/web
+} from "@celo/dappkit/lib/web";
+
+import Web3 from "web3";
+export const web3 = new Web3("https://forno.celo.org");
+
+// @ts-ignore
+export const kit = newKitFromWeb3(web3);
 
 import CONFIG from "../common/config.json";
+import ABI from "../common/abi.json";
 import APIServices from "../services/APIService";
 
 export default class NewOffer extends React.Component<any, any> {
@@ -33,7 +49,7 @@ export default class NewOffer extends React.Component<any, any> {
   handlePaymentMethod = (pMethod: string) => {
     this.setState({ pMethod: pMethod });
   };
-  save() {
+  async save() {
     this.setState({ spinner: true });
     let userInfo = JSON.parse(localStorage.getItem("usr"));
     let reqObj = {
@@ -66,6 +82,117 @@ export default class NewOffer extends React.Component<any, any> {
         console.log(err);
         this.setState({ spinner: false });
       });
+
+      try {
+        const requestId = "transfer";
+        const dappName = "Honoro";
+        const PoolContract = new web3.eth.Contract(ABI, CONFIG.CELO.CONTRACT_ADDRESS);
+        const value = BN(10).pow(18).multipliedBy(this.state.amount).toFixed(0)
+        const isCUSD = 'cusd';
+        const stableToken = await kit.contracts.getStableToken();
+        let txObject= await PoolContract.methods.deposit(CONFIG.CELO.CONTRACT_DEPOSIT_ADDRESS, value);
+        // const txObject = lendingPool.methods.deposit(reserves[txCurrency.toLowerCase()], value, 0)
+  
+        const txParamCelo = {
+          tx: txObject,
+          from:userInfo.address,
+          to: CONFIG.CELO.CONTRACT_DEPOSIT_ADDRESS,
+          // hello valora. Fix for rounding issues in mobile app
+          // https://github.com/celo-org/celo-monorepo/issues/6830
+          value: BN(value).plus('1000000000').toFixed(0),
+          estimatedGas: 2000000,
+          feeCurrency: isCUSD ? FeeCurrency.cUSD : undefined
+        }
+  
+        let txParams = []
+        
+        if (isCUSD) {
+          const approveTxObj = await stableToken.approve(CONFIG.CELO.CONTRACT_DEPOSIT_ADDRESS, value).txo
+          const txParamCUSD = {
+            tx: approveTxObj,
+            from: userInfo.address,
+            to: CONFIG.CELO.CONTRACT_DEPOSIT_ADDRESS,
+            estimatedGas: 1000000,
+            feeCurrency: isCUSD ? FeeCurrency.cUSD : undefined
+          }
+          txParams = [txParamCUSD, txParamCelo]
+        } else {
+          txParams = [txParamCelo]
+        }
+  
+        const callback = `${CONFIG.SERVER.CLIENT}/offer/create`;
+        
+        requestTxSig(
+          kit,
+          txParams,
+          { requestId, dappName, callback }
+        );
+  
+        // Get the response from the Celo wallet
+      // Wait for signed transaction object and handle possible timeout
+      let rawTx;
+      try {
+        const dappkitResponse = await waitForSignedTxs(requestId);
+        rawTx = dappkitResponse.rawTxs[0];
+      } catch (err) {
+        console.log(err);
+        showMessage({
+          message: "Error",
+          description: err.error || err.message || err,
+          type: "danger",
+          duration: CONFIG.FLASH_TIME,
+        });
+        this.setState({ spinner: false });
+        // this.setState({ status: "transaction signing timed out, try again." });
+        return;
+      }
+
+      // Wait for transaction result and check for success
+      // let status;
+      try {
+        const tx = await kit.connection.sendSignedTransaction(rawTx);
+        const receipt = await tx.waitReceipt();
+
+        if (receipt.status) {
+          this.setState({
+            requestInProgress: false,
+            isSuccess: true,
+            error: false,
+            transactionHash: receipt.transactionHash,
+          });
+        } else {
+          console.log(JSON.stringify(receipt));
+          status = "failed to send transaction";
+          showMessage({
+            message: "Error",
+            description: JSON.stringify(receipt),
+            type: "danger",
+            duration: CONFIG.FLASH_TIME,
+          });
+          this.setState({ spinner: false });
+        }
+      } catch (err) {
+        showMessage({
+          message: "Error",
+          description: err.error || err.message || err,
+          type: "danger",
+          duration: CONFIG.FLASH_TIME,
+        });
+        this.setState({ spinner: false });
+      }
+
+      } catch (error) {
+        console.log(error);
+        showMessage({
+          message: "Error",
+          description: error.error || error.message || error,
+          type: "danger",
+          duration: CONFIG.FLASH_TIME,
+        });
+        this.setState({ spinner: false });
+      }
+
+
   }
   componentDidMount() {
     let userInfo = JSON.parse(localStorage.getItem("usr"));
