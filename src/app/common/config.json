@@ -1,8 +1,8 @@
 {
     "CELO": {
         "DESTINATION_ADDRESS": "0x3ca7cdcfb98b066d6e8febe45a95c2fe911bf138",
-        "CONTRACT_DEPOSIT_ADDRESS": "765DE816845861e75A25fCA122bb6898B8B1282a",
-        "CONTRACT_ADDRESS": "b63348987aE3ef618ab76D8748A0cD80627cA58B",
+        "CONTRACT_DEPOSIT_ADDRESS": "0x765DE816845861e75A25fCA122bb6898B8B1282a",
+        "CONTRACT_ADDRESS": "0xb63348987aE3ef618ab76D8748A0cD80627cA58B",
         "TRANSACTION_API": "https://explorer.celo.org/api?module=transaction&action=gettxinfo&txhash=",
         "TRANSACTION_EXPLORER_LINK": "https://explorer.celo.org/tx/"
     },
